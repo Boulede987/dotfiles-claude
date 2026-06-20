@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "dotfiles-claude",
+  "description": "Personal Claude Code plugin marketplace",
+  "owner": {
+    "name": "Boulede987",
+    "url": "https://gitlab.com/Boulede987"
+  },
+  "plugins": [
+    {
+      "name": "my-tools",
+      "description": "Personal skills and agents",
+      "source": "./plugins/my-tools",
+      "category": "productivity"
+    }
+  ]
+}
