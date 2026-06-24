@@ -1,4 +1,5 @@
 ---
+name: session-handoff
 description: Generates a structured end-of-session summary covering what changed, what's pending, and key decisions made. Use when the user is done working and wants to close the session cleanly, or says things like "wrap up", "let's stop here", "summarize what we did".
 ---
 
