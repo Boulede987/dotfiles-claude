@@ -177,6 +177,39 @@ def get_user_discount(user):
     return 0.05
 ```
 
+### Extract nested control structures
+
+An `if` inside a `for` inside a `try` inside another `if` is extraction waiting to happen. Each nesting level is a sign the inner logic belongs in its own function. Apply "extract till you drop": pull the body of any nested block into a named function until no block is nested inside another.
+
+```python
+# Bad — three levels of nesting, logic buried, nothing reusable
+def process_orders(orders):
+    try:
+        for order in orders:
+            if order.is_valid():
+                if order.total > 0:
+                    apply_discount(order)
+                    save(order)
+    except DatabaseError as e:
+        log(e)
+
+# Good — each level extracted; inner functions are testable and reusable
+def process_orders(orders):
+    try:
+        for order in orders:
+            process_single_order(order)
+    except DatabaseError as e:
+        log(e)
+
+def process_single_order(order):
+    if not order.is_valid() or order.total <= 0:
+        return
+    apply_discount(order)
+    save(order)
+```
+
+Rule of thumb: if you need to scroll horizontally to read a line, or if a block is indented more than two levels, extract.
+
 ### Loop exit conditions must be visible
 
 Hidden exit conditions (`while True`, `for(;;)`) force readers to scan the whole loop
