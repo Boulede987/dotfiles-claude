@@ -325,6 +325,60 @@ def load_config(path):
 
 ---
 
+## 10. Dependency Inversion — High-Level Policy Must Not Depend on Low-Level Detail
+
+High-level policy is the *what*: "generate invoices for each customer."
+Low-level detail is the *how*: "read a spreadsheet to get the data."
+The policy must not depend on the detail — if the storage format changes or breaks,
+the policy must survive unchanged.
+
+When business logic imports a file-parsing library, opens a workbook, or references
+a column by index, the policy and the storage format are fused. Replacing the
+spreadsheet with a database means rewriting the policy — which is wrong.
+
+### The rule
+
+Define what the policy *needs* as a plain data structure. Isolate everything that
+produces that structure (the format, the file, the query) behind a boundary. The policy
+calls the boundary; it never crosses it.
+
+```python
+# Bad — the invoice generation policy depends on xlsx existing.
+#        Change the spreadsheet format and the policy breaks with it.
+def generate_invoices():
+    ws = openpyxl.load_workbook('pricing.xlsx')['Tiers']
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        customer_id = row[0]
+        unit_price  = row[3]   # ← magic column index: policy knows xlsx schema
+        quantity    = row[4]
+        send_invoice(customer_id, unit_price * quantity)
+
+# Good — policy depends only on a plain list. Storage is behind a boundary.
+#         Swap xlsx for a SQL query by changing load_pricing_tiers() alone.
+
+# boundary (the only place that knows about xlsx)
+def load_pricing_tiers() -> list[dict]:
+    """Returns [{'customer_id': ..., 'unit_price': ..., 'quantity': ...}, ...]"""
+    ws = openpyxl.load_workbook('pricing.xlsx')['Tiers']
+    ...
+    return tiers
+
+# policy (knows nothing about xlsx)
+def generate_invoices():
+    for tier in load_pricing_tiers():
+        send_invoice(tier['customer_id'], tier['unit_price'] * tier['quantity'])
+```
+
+### The coupling test
+
+Ask: "if the storage format disappears or changes completely, how much policy logic
+breaks?" If the answer is anything other than zero, the boundary is missing or leaking.
+
+Schema details (column offsets, sheet names, field names) that leak into policy code
+are the most common symptom — they mean the policy secretly depends on the format.
+
+---
+
 ## How to Apply This Skill
 
 When **writing new code**: apply all principles from the start. Don't plan to clean up
