@@ -22,6 +22,7 @@ one(s) matching the task at hand instead of treating this file as the whole stan
 | `architecture` | File/module boundaries, large-file smell, DRY/registry pattern, SOLID, YAGNI | Organizing files, deduplicating logic, coupling to a storage format, growing conditional chains, speculative abstraction |
 | `error-handling` | Explicit failure handling, no silent `None`/swallowed exceptions, input validation at trust boundaries | Writing or reviewing try/except, deciding a failure return value, handling external input |
 | `testing` | TDD cycle, test structure/naming, mocking at boundaries, failure-path coverage | Writing tests, fixing a bug, reviewing test coverage |
+| `type-safety` | Typing public boundaries, named structures over dict/Any, narrow return types | Defining a signature, passing a raw dict/Any across a boundary, an ambiguous `Optional` return |
 | `python-conventions` | `__main__` guard, Windows console encoding | Writing or reviewing Python specifically |
 
 ## How to Apply This Skill
