@@ -1,16 +1,19 @@
 ---
 name: architecture
 description: >
-  Apply module boundary, duplication, and dependency-direction rules when organizing
-  files or reviewing structure. Trigger when a file is growing large, two structures
-  (like a menu and a dispatch table) must stay in sync, or business logic is coupled to
-  a specific storage format or library. Also trigger on "code review" or "code
-  organization" requests. Examples use Python but rules apply universally.
+  Apply module boundary, duplication, dependency-direction, SOLID, and YAGNI rules when
+  organizing files or reviewing structure. Trigger when a file is growing large, two
+  structures (like a menu and a dispatch table) must stay in sync, business logic is
+  coupled to a specific storage format or library, a conditional chain keeps growing new
+  branches per type, a subclass overrides a method to raise/reject, or an abstraction
+  has only one implementation. Also trigger on "code review", "code organization",
+  "SOLID", or "over-engineered" requests. Examples use Python but rules apply
+  universally.
 ---
 
-# Architecture: Module Boundaries, DRY, Dependency Direction
+# Architecture: Module Boundaries, DRY, SOLID, YAGNI
 
-## 1. Separation of Concerns — Files and Modules
+## 1. Separation of Concerns — Files and Modules (Single Responsibility)
 
 Each module, class, or file should have one clearly defined responsibility. If code
 inside a single file can be grouped into distinct responsibilities, extract each group
@@ -167,3 +170,106 @@ breaks?" If the answer is anything other than zero, the boundary is missing or l
 
 Schema details (column offsets, sheet names, field names) that leak into policy code
 are the most common symptom — they mean the policy secretly depends on the format.
+
+---
+
+## 4. The Rest of SOLID, Briefly
+
+Single Responsibility is rule 1 above; Dependency Inversion is rule 3. The remaining
+three are narrower but worth naming when the shape shows up.
+
+**Open/Closed** — adding a new case should mean *adding* code, not editing a chain of
+conditionals that already works. An `if/elif` chain that grows a new branch every time
+a new type appears is the signal; a registry or polymorphic dispatch (see the DRY
+registry pattern in rule 2) lets the new case slot in without touching the existing ones.
+
+```python
+# Bad — every new shape means editing this function again
+def area(shape):
+    if shape.kind == "circle":
+        return 3.14159 * shape.radius ** 2
+    elif shape.kind == "rectangle":
+        return shape.width * shape.height
+    # a new shape means another elif here, risking the existing branches
+
+# Good — adding Triangle means adding a class, not editing area()
+class Circle:
+    def area(self): return 3.14159 * self.radius ** 2
+
+class Rectangle:
+    def area(self): return self.width * self.height
+```
+
+**Liskov Substitution** — any subtype must work everywhere the base type is expected,
+without the caller needing to know which one it got. A subclass that raises
+`NotImplementedError` on an inherited method, or narrows what a parameter accepts, breaks
+callers written against the base type.
+
+```python
+# Bad — ReadOnlyList is a List that lies about being one
+class ReadOnlyList(list):
+    def append(self, item):
+        raise NotImplementedError("read-only")  # breaks any code that treats it as a list
+
+# Good — don't inherit from a type whose full contract you can't honor
+class ReadOnlyView:
+    def __init__(self, items): self._items = list(items)
+    def __getitem__(self, i): return self._items[i]
+```
+
+**Interface Segregation** — don't force a caller to depend on methods it never calls.
+A fat interface (or base class) with unrelated methods means every implementer carries
+dead weight, and every caller is coupled to methods it doesn't use. Split by which
+callers actually need which methods.
+
+```python
+# Bad — a read-only caller still depends on write/delete it never calls
+class Repository(Protocol):
+    def get(self, id): ...
+    def save(self, item): ...
+    def delete(self, id): ...
+
+# Good — split by usage; a read-only caller depends only on what it uses
+class ReadableRepository(Protocol):
+    def get(self, id): ...
+
+class WritableRepository(Protocol):
+    def save(self, item): ...
+    def delete(self, id): ...
+```
+
+---
+
+## 5. YAGNI — Don't Build the Abstraction Before There's a Second Case
+
+DRY (rule 2) and Open/Closed (rule 4) both call for abstraction — but only once real
+duplication or real variation exists. An interface, plugin system, or config layer built
+for a use case that doesn't exist yet is speculative complexity: it adds indirection the
+reader must trace through, for flexibility nothing currently uses.
+
+Signal: an abstraction with exactly one implementation, a config flag that is never set
+to anything but its default, or a "for future extensibility" comment with no concrete
+second case named.
+
+```python
+# Bad — one exporter, a factory built for hypothetical future formats no one asked for
+class ExporterFactory:
+    def create(self, format: str) -> "Exporter":
+        if format == "csv":
+            return CsvExporter()
+        raise ValueError(f"Unknown format: {format}")   # every branch but one is dead
+
+def export_report(data):
+    exporter = ExporterFactory().create("csv")
+    exporter.export(data)
+
+# Good — write the concrete thing; extract the abstraction when a second format
+# actually shows up (that's when Open/Closed rule 4 applies)
+def export_report(data):
+    write_csv(data)
+```
+
+The `architecture` skill's own DIP boundary (rule 3) is not an exception to this: that
+boundary exists because the storage format is *already* known to be a coupling risk
+(pricing data always comes from some external source), not because it might be swapped
+someday.
