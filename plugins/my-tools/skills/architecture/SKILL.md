@@ -116,6 +116,50 @@ def generate_invoices():
         send_invoice(tier['customer_id'], tier['unit_price'] * tier['quantity'])
 ```
 
+In a statically-typed OOP language the same boundary is usually named as an interface,
+which makes the abstraction the policy depends on visible in the type system instead of
+implicit:
+
+```csharp
+// Bad — InvoiceService depends on the concrete XlsxPricingReader.
+//        Swap the source and InvoiceService's constructor signature must change too.
+class InvoiceService {
+    private readonly XlsxPricingReader _reader = new XlsxPricingReader("pricing.xlsx");
+
+    public void GenerateInvoices() {
+        foreach (var row in _reader.ReadRows())
+            SendInvoice(row.CustomerId, row.UnitPrice * row.Quantity);
+    }
+}
+
+// Good — InvoiceService depends on the IPricingTierSource interface, not on xlsx.
+//         Any class implementing the interface can be passed in; the policy is unchanged.
+interface IPricingTierSource {
+    IEnumerable<PricingTier> ReadTiers();
+}
+
+class XlsxPricingTierSource : IPricingTierSource {   // the only class that knows about xlsx
+    public IEnumerable<PricingTier> ReadTiers() { /* ... */ }
+}
+
+class InvoiceService {
+    private readonly IPricingTierSource _source;
+    public InvoiceService(IPricingTierSource source) => _source = source;
+
+    public void GenerateInvoices() {
+        foreach (var tier in _source.ReadTiers())
+            SendInvoice(tier.CustomerId, tier.UnitPrice * tier.Quantity);
+    }
+}
+```
+
+The interface isn't the point — the dependency direction is. In Python, duck typing
+gets the same inversion without declaring an interface at all: `load_pricing_tiers`
+already *is* the boundary, because `generate_invoices` never names a concrete type, only
+the shape of data it returns. Don't add an `ABC`/`Protocol` in Python just to imitate
+the C# shape — only introduce one if multiple concrete implementations genuinely need
+to satisfy it.
+
 ### The coupling test
 
 Ask: "if the storage format disappears or changes completely, how much policy logic
