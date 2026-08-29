@@ -21,6 +21,7 @@ one(s) matching the task at hand instead of treating this file as the whole stan
 | `function-design` | Function size, extraction, nesting, loop exit conditions | A function is long, does multiple things, or has nested control flow |
 | `architecture` | File/module boundaries, large-file smell, DRY/registry pattern, dependency inversion | Organizing files, deduplicating logic, business logic coupled to a storage format |
 | `error-handling` | Explicit failure handling, no silent `None`/swallowed exceptions | Writing or reviewing try/except, deciding a failure return value |
+| `testing` | TDD cycle, test structure/naming, mocking at boundaries, failure-path coverage | Writing tests, fixing a bug, reviewing test coverage |
 | `python-conventions` | `__main__` guard, Windows console encoding | Writing or reviewing Python specifically |
 
 ## How to Apply This Skill
