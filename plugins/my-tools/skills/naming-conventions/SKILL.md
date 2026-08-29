@@ -1,11 +1,12 @@
 ---
 name: naming-conventions
 description: >
-  Apply naming, constants, and comment conventions when writing or reviewing code.
-  Trigger when choosing variable/function names, replacing magic numbers, deciding
-  whether a value belongs in a constant, or writing/reviewing comments. Also trigger
-  when the user mentions "readable", "clean up", or pastes code and asks about naming.
-  Examples use Python but rules apply universally.
+  Apply naming, constants, comment, and primitive-obsession conventions when writing or
+  reviewing code. Trigger when choosing variable/function names, replacing magic
+  numbers, deciding whether a value belongs in a constant, writing/reviewing comments,
+  or when a raw int/str/float carries a unit or invariant that a comment has to explain.
+  Also trigger when the user mentions "readable", "clean up", or pastes code and asks
+  about naming. Examples use Python but rules apply universally.
 ---
 
 # Naming, Constants, and Comments
@@ -82,7 +83,43 @@ decision was made, or warn about a gotcha. Delete comments that just restate the
 # multiply price by quantity
 total = price * quantity
 
-# Good
+# Good — comment still needed because the int can't say what it means
 # Prices are stored in cents to avoid floating-point rounding errors
 total_cents = price_cents * quantity
 ```
+
+A comment that exists purely to explain what a raw value "actually" represents is
+itself a signal — see rule 4 below.
+
+---
+
+## 4. Primitive Obsession — Wrap Primitives That Carry Meaning or Invariants
+
+When a primitive (`int`, `str`, `float`) always travels with a unit, a rule, or
+behavior, it is not "just a number" — it is a value that deserves its own type. Passing
+the raw primitive around scatters that meaning across every call site, and forces a
+comment to carry what the type should.
+
+Signal: a comment exists only to explain what a value "actually" is, or multiple
+functions parse/validate/convert the same primitive the same way.
+
+```python
+# Still primitive obsession — the comment carries meaning the code should carry
+# Prices are stored in cents to avoid floating-point rounding errors
+total_cents = price_cents * quantity
+
+# Better — the type carries the meaning; no comment needed
+@dataclass(frozen=True)
+class Money:
+    cents: int
+
+    def __mul__(self, quantity: int) -> "Money":
+        return Money(self.cents * quantity)
+
+total = Money(price_cents) * quantity
+```
+
+Not every primitive needs wrapping — a loop counter or a one-off local is fine as a
+plain `int`. Wrap when the primitive carries a unit, a validity rule, or behavior
+(formatting, arithmetic, comparison) that would otherwise be duplicated at each call
+site.
