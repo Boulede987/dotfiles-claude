@@ -18,6 +18,7 @@ one(s) matching the task at hand instead of treating this file as the whole stan
 | Skill | Covers | Invoke when |
 |---|---|---|
 | `naming-conventions` | Magic numbers, abbreviations, constants vs. display strings, comments | Choosing names, extracting a literal, writing/reviewing a comment |
+| `decision-log` | Moving historical/rationale narrative out of comments into a dated `DECISIONS.md` | Writing a comment about a rejected alternative, past experiment, or benchmark; relying on a past decision |
 | `function-design` | Function size, extraction, nesting, loop exit conditions | A function is long, does multiple things, or has nested control flow |
 | `architecture` | File/module boundaries, large-file smell, DRY/registry pattern, SOLID, YAGNI | Organizing files, deduplicating logic, coupling to a storage format, growing conditional chains, speculative abstraction |
 | `error-handling` | Explicit failure handling, no silent `None`/swallowed exceptions, input validation at trust boundaries | Writing or reviewing try/except, deciding a failure return value, handling external input |

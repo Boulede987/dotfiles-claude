@@ -91,6 +91,10 @@ total_cents = price_cents * quantity
 A comment that exists purely to explain what a raw value "actually" represents is
 itself a signal — see rule 4 below.
 
+This rule covers the local WHY tied to the exact line. A comment narrating history —
+a rejected alternative, a past experiment, a benchmark — is a different kind of content
+and belongs in a dated log instead; see the `decision-log` skill.
+
 ---
 
 ## 4. Primitive Obsession — Wrap Primitives That Carry Meaning or Invariants
