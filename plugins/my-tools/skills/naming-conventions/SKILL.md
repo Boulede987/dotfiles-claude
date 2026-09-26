@@ -95,6 +95,33 @@ This rule covers the local WHY tied to the exact line. A comment narrating histo
 a rejected alternative, a past experiment, a benchmark — is a different kind of content
 and belongs in a dated log instead; see the `decision-log` skill.
 
+### State the Invariant, Don't Name Who Currently Enforces It
+
+When a comment explains a gotcha by naming another class as "whose job" something is,
+it couples the comment to today's architecture: the responsibility can move to a
+different class without that class being renamed, and nothing catches the comment going
+stale. State the invariant the reader actually needs — what this value is or isn't,
+what it does or doesn't guarantee — without naming who currently handles it.
+
+```java
+// Bad — names ToroidalGrid's responsibility; goes stale silently if that job
+// moves to a different class without ToroidalGrid itself being renamed
+/**
+ * A position in a FINITE, PERIODIC (toroidal) hex-like grid, axial (q,r). Wrapping is
+ * {@link ToroidalGrid}'s job, not this record's - a bare (q,r) pair here is not yet
+ * normalized into any particular grid's own bounds.
+ */
+record ToroidalPos(int q, int r) {}
+
+// Good — states the invariant the type itself carries; names no owner
+/** (q, r) may lie outside any grid's bounds — not yet wrapped/normalized. */
+record ToroidalPos(int q, int r) {}
+```
+
+A general explanation of the underlying concept (what "toroidal" means, why the project
+uses one) is neither a WHY nor an invariant — it's domain background, and belongs in
+real documentation, not a per-class comment.
+
 ---
 
 ## 4. Primitive Obsession — Wrap Primitives That Carry Meaning or Invariants
