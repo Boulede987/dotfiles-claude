@@ -2,16 +2,21 @@
 name: generate-docs
 description: >
   Generate or refresh PlantUML documentation from source code using the personal
-  DocGeneration toolset. Trigger when the user says "generate docs", "update docs",
-  "refresh documentation", "run doc gen", or similar. Also trigger when the user
-  asks why docs are out of date.
+  DocGeneration toolset, discovering what project types/languages it currently
+  supports from the repo itself rather than a fixed list. Falls back to hand-drawn
+  diagrams (design-preview / algorithm-diagrams) when the current project's language
+  isn't covered. Trigger when the user says "generate docs", "update docs", "refresh
+  documentation", "run doc gen", or similar. Also trigger when the user asks why docs
+  are out of date.
 ---
 
 # Generate Documentation
 
-Pull the latest scripts, detect the project type, run the correct generator.
+Pull the latest scripts, discover what the toolset currently supports, run the
+matching generator — or say clearly that nothing matches and fall back to hand-drawn
+diagrams.
 
-## Step 1 — Locate the DocGeneration repo
+## Step 1 — Locate the DocGeneration Repo
 
 Check `$env:DOCGEN_REPO` (Windows) or `$DOCGEN_REPO` (Unix). If unset, default to:
 - Windows: `C:\Users\<current user>\.tools\DocGeneration`
@@ -22,51 +27,59 @@ If the directory does not exist, clone it:
 git clone https://github.com/Boulede987/DocGeneration.git <resolved_path>
 ```
 
-## Step 2 — Pull latest scripts
+## Step 2 — Pull Latest Scripts
 
 ```
 git -C <DOCGEN_REPO> pull --quiet
 ```
 
-## Step 3 — Detect project type
+## Step 3 — Discover What's Currently Supported
 
-Check the **current working directory** (the project Claude is working in) for these markers, in priority order:
+**Don't hardcode a list of supported languages/project types here** — that
+knowledge belongs to the DocGeneration repo, which can grow independently of this
+skill, and a fixed list in this file would silently go stale the moment the repo adds
+or renames something. Instead, each run:
 
-| Priority | Marker | Project type | Script |
-|----------|--------|--------------|--------|
-| 1 | `Assets/` folder + `ProjectSettings/` folder | Unity C# | `generate_class_diagramm_unity.py` |
-| 2 | `*.csproj` or `*.sln` file anywhere in tree | Generic C# | `generate_class_diagramm.py` |
-| 3 | `*.sql` file (especially `DBSetUp.sql`) | SQL / Merise | `generate_mcd.py` + `generate_mld.py` |
+- Read the repo's own documentation (`README.md` or equivalent) if it has one, for
+  what project types it generates for and how each generator is invoked.
+- Otherwise, enumerate its generator scripts (e.g. `generate_*.py`) and check each
+  one's own usage/help text or top-of-file docstring for what it expects as input and
+  what markers identify a matching project.
 
-If multiple types match (e.g. a C# project with a SQL file), ask the user which documentation to generate rather than guessing.
+Use whatever is currently discovered — not what was discovered last time this skill
+ran, since the repo may have changed.
 
-If no marker matches, ask the user which script to use.
+## Step 4 — Match the Current Project
 
-## Step 4 — Run the script
+Check the **current working directory** (the project Claude is working in) against
+the markers discovered in Step 3.
 
-### Unity C#
-```
-python <DOCGEN_REPO>/generate_class_diagramm_unity.py <project_root>/Assets
-```
-Output lands in `<project_root>/Assets/Modelisation/`.
+- Exactly one match → run it (Step 5).
+- More than one match → ask the user which documentation to generate rather than
+  guessing.
+- No match → go to Step 6, don't guess at a script to force.
 
-### Generic C#
-```
-python <DOCGEN_REPO>/generate_class_diagramm.py <src_root>
-```
-`src_root` = the directory that contains the `.cs` files (or the project root if `.cs` files are spread across subfolders). Output lands in `<src_root>/Modelisation/`.
+## Step 5 — Run the Matching Script
 
-### SQL / Merise
-```
-python <DOCGEN_REPO>/generate_mcd.py <path/to/DBSetUp.sql>
-python <DOCGEN_REPO>/generate_mld.py <path/to/DBSetUp.sql>
-```
-Output lands next to the `.sql` file (`MCD.puml`, `MLD.puml`, `MLD.html`).
+Invoke it the way its own usage/help/docstring (discovered in Step 3) says to, passing
+the project's source root. Note where it says output lands — don't assume a fixed
+output path that may differ between generators or change as the repo evolves.
 
-## Step 5 — Report
+## Step 6 — No Match: Say So, Then Fall Back to Hand-Drawn Diagrams
+
+If nothing in the DocGeneration repo currently covers this project's language, state
+that clearly and visibly — name the language and say plainly that no generator
+supports it yet, don't bury this in a routine status line. Then don't leave
+documentation undone: produce it by hand instead, via the `design-preview` skill for
+structure (class diagrams) and/or the `algorithm-diagrams` skill for any unusual
+algorithms, exactly as those skills would run for a project with no diagram tooling
+at all.
+
+## Step 7 — Report
 
 Tell the user:
-- Which script ran
+- Which script ran (or, on no match, that none did and hand-drawn diagrams were used
+  instead)
 - Where output files were written
-- How many classes/tables were parsed (the scripts print this to stdout)
+- How many classes/tables were parsed, if the script reports this
 - If anything failed, show the error verbatim
