@@ -115,7 +115,7 @@ phase/increment.
 | **Tests** | `testing` | Tests are written and **failing** (red), before any implementation code exists | Test files added, expected-failure state noted |
 | **Implement** | `function-design`, `naming-conventions`, `type-safety`, `error-handling`, `decision-log`, `python-conventions` (as applicable) | The tests from the previous phase now **pass** (green) | Decisions made = pointer into the target project's `DECISIONS.md` only, never the rationale itself |
 | **Review** | `per-file-review` (file-local) and `architecture` (cross-file) run first | **The user is the actual gate** — automated findings inform the review, they never substitute for it | Findings surfaced, user's resolution/acceptance of each |
-| **Commit** | `git-workflow`'s existing branch/commit rules; `generate-docs` regenerates `design-preview`'s diagram(s) from the real, now-implemented code | Commit(s) made referencing the increment; diagram(s) now reflect as-built truth, overwriting the highlighted draft | Commit hash(es) and message |
+| **Commit** | `git-workflow`'s existing branch/commit rules; `generate-docs` regenerates `design-preview`'s diagram(s) from the real, now-implemented code | Commit(s) made referencing the increment; diagram(s) now reflect as-built truth; any `design-preview` preview-copy file is deleted once regeneration lands | Commit hash(es) and message |
 | **Report** | `session-handoff`'s section format, persisted here instead of chat-only | `STATE.md` entry written; user validates before the next increment is allowed to open | Full entry including `CLAUDE.md update suggestions` |
 
 ## 7. Gate / Override Protocol

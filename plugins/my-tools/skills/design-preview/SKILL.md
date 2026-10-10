@@ -2,15 +2,16 @@
 name: design-preview
 description: >
   Draft a PlantUML class diagram for proposed new or changed structure before writing
-  any code, drawn together with its existing neighborhood (the real callers and
-  callees already in the codebase, not just the new classes in isolation), with
-  new/changed elements rendered in an obvious highlight color, plus a list of the
-  files that will be created or modified — then pause for the user to explicitly
-  validate the design. Trigger unconditionally whenever new classes, interfaces, or
-  relationships are about to be introduced as part of planned implementation work —
-  not gated on "is this unusual," unlike algorithm-diagrams. Primarily invoked from
-  the feature-workflow skill's Spec phase, but usable standalone whenever a design
-  needs sign-off before code.
+  any code, preferring to extend a copy of an existing diagram that already covers
+  the area over drafting a new one from scratch — so real existing callers/callees
+  are already present, not just the new classes in isolation. New/changed elements
+  get an obvious highlight color; the rendered SVG (not just the raw .puml) is shown
+  to the user alongside a list of files that will be created or modified, then this
+  pauses for the user to explicitly validate the design. Trigger unconditionally
+  whenever new classes, interfaces, or relationships are about to be introduced as
+  part of planned implementation work — not gated on "is this unusual," unlike
+  algorithm-diagrams. Primarily invoked from the feature-workflow skill's Spec phase,
+  but usable standalone whenever a design needs sign-off before code.
 ---
 
 # Design Preview — Propose Structure, Get Sign-Off, Before Any Code
@@ -23,21 +24,41 @@ is about to be introduced. The point is a reliable human checkpoint on architect
 every time, not just when something looks important — "looks important" is exactly
 the kind of judgment that misses things.
 
-## 2. Highlight What's New — Inside Its Existing Neighborhood
+## 2. Extend an Existing Diagram Before Drafting a New One
 
-Draw the proposed class diagram in standard PlantUML. Give every new or changed class,
-interface, and relationship a consistent, obvious highlight color — distinct from
-default styling — so the reviewer can spot additions at a glance instead of diffing
-the diagram by hand against what already exists.
+Check whether an existing project diagram already depicts the area being touched —
+the module/package the new classes belong to, or their direct neighbors. If one does:
+
+- **Make a copy of that file**, don't edit the real one in place — it's still a
+  proposal, not truth, until validated and implemented.
+- **Add the proposed classes onto the copy**, alongside everything already there.
+  This gets the neighborhood requirement in rule 3 essentially for free: the real
+  existing callers/callees are already drawn, because it's the real diagram.
+- Name the copy clearly as a draft, next to the original (e.g.
+  `inventory_system.puml` → `inventory_system.preview.puml`), so it's never mistaken
+  for the real file mid-review.
+
+If the neighborhood spans more than one existing diagram, or no existing diagram
+covers the area at all, fall back to drafting a new one from scratch — still applying
+rule 3's neighborhood requirement by hand. If it's ambiguous which existing diagram (if
+any) is the right one to extend, ask the user rather than guessing.
+
+## 3. Highlight What's New — Inside Its Existing Neighborhood
+
+Give every new or changed class, interface, and relationship a consistent, obvious
+highlight color — distinct from default styling — so the reviewer can spot additions
+at a glance instead of diffing the diagram by hand against what already exists.
 
 **Showing only the new classes is not enough to validate.** The point of the sign-off
 isn't "does this new class look fine on its own" — it's "does this fit correctly into
 the architecture that already exists." That judgment needs the new/changed classes'
 immediate neighborhood: every existing class that calls into them, and every existing
-class they call into or depend on (one hop out in each direction is the default —
-go further only if a reviewer would need it to judge a specific relationship).
-Include those existing classes in the same diagram, in default/unhighlighted styling,
-with the real relationships drawn to them — not just a caption saying they exist.
+class they call into or depend on (one hop out in each direction is the default — go
+further only if a reviewer would need it to judge a specific relationship). When
+extending an existing diagram (rule 2), this is usually already satisfied. When
+drafting from scratch, include those existing classes explicitly, in
+default/unhighlighted styling, with the real relationships drawn to them — not just a
+caption saying they exist.
 
 ```plantuml
 @startuml custom_ore_block
@@ -65,37 +86,45 @@ across one project so the reviewer learns it once. Existing, unchanged classes s
 default/no color — highlighted only if they themselves are modified (e.g. a new method
 added to an existing class to call the new one).
 
-## 3. List the Files
+## 4. List the Files
 
 Alongside the diagram, name the concrete files that will be created or modified to
 realize this design. The diagram shows the shape; the file list shows the blast
 radius — the reviewer needs both to validate the proposal.
 
-## 4. Where to Save
+## 5. Render and Show the SVG
 
-Use the same detection logic as `algorithm-diagrams`: look for where diagrams already
-live in the project (`doc/`, `docs/`, `Modelisation/`, or the project's own
-convention) and save there. Ask the user if no existing convention is found — don't
-guess a new one. Saving at the same path matters: `generate-docs` will later overwrite
-this exact file once the design is implemented (see rule 6).
+Don't hand the user raw PlantUML text to read. Render the `.puml` (the new file, or
+the extended copy from rule 2) to SVG using whatever renderer the project already has
+available — the `generate-docs` toolset, a local `plantuml` CLI/jar, or an equivalent —
+and present the rendered image for review. A diagram that has to be mentally parsed
+from markup defeats the point of drawing one.
 
-## 5. Gate — Do Not Proceed Without Explicit Validation
+## 6. Where to Save (When Drafting From Scratch)
+
+If rule 2 didn't apply and a new file is being drafted, use the same detection logic
+as `algorithm-diagrams`: look for where diagrams already live in the project (`doc/`,
+`docs/`, `Modelisation/`, or the project's own convention) and save there. Ask the
+user if no existing convention is found — don't guess a new one.
+
+## 7. Gate — Do Not Proceed Without Explicit Validation
 
 Do not move on to writing tests or implementation code until the user has explicitly
-validated the diagram and file list. "Looks fine" from a quick skim doesn't count as
-validation if the user hasn't actually looked — if there's any doubt they've reviewed
-it, ask directly rather than assuming silence means approval.
+validated the diagram (via its rendered SVG) and file list. "Looks fine" from a quick
+skim doesn't count as validation if the user hasn't actually looked — if there's any
+doubt they've reviewed it, ask directly rather than assuming silence means approval.
 
-## 6. This Draft Is Temporary
+## 8. This Draft Is Temporary
 
 The highlighted diagram is a proposal for review, not documentation of truth. Once the
 design is implemented and committed, `generate-docs` regenerates the diagram from the
-real source at the same file path, overwriting this hand-drawn draft with the as-built
-version — plain styling, no highlight, because it now reflects what actually exists
-rather than what was proposed. Don't present this draft as if it were permanent
-documentation; say explicitly that it will be superseded once the code lands.
+real source — at the original file's path if one was extended (rule 2), or at the new
+file's path otherwise — producing the as-built version with plain styling, no
+highlight. If a preview copy was made (rule 2), delete it once that regeneration has
+happened: its job was reviewing a proposal, and keeping it around afterward is just
+stale duplicate content sitting next to the real diagram.
 
-## 7. Relationship to `algorithm-diagrams`
+## 9. Relationship to `algorithm-diagrams`
 
 Separate, unchanged skill: `algorithm-diagrams` owns activity/control-flow diagrams
 for unusual or important algorithms, conditionally. This skill owns structural class
