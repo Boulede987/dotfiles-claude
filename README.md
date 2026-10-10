@@ -11,8 +11,9 @@ dotfiles-claude/
 └── plugins/
     └── my-tools/
         ├── .claude-plugin/
-        │   └── plugin.json     # Plugin metadata (name, version, description)
-        ├── skills/             # Skill files (.md) — custom /slash commands
+        │   └── plugin.json     # Plugin metadata (name, description, author)
+        ├── skills/             # Skill directories — each a SKILL.md, auto-triggered by description match
+        ├── commands/           # Deterministic slash commands — each a <name>.md
         └── agents/             # Agent definitions — custom Claude agent types
 ```
 
@@ -22,11 +23,15 @@ Tells Claude Code that this repo is a plugin marketplace and where to find each 
 
 ### plugin.json
 
-Metadata for the `my-tools` plugin: name, version, description, and lists of skills/agents it exposes.
+Metadata for the `my-tools` plugin: name, description, author. `skills/`, `commands/`,
+and `agents/` are picked up by directory convention — nothing here enumerates them.
 
 ### skills/
 
-Each `.md` file is a skill — a custom slash command Claude can run (e.g. `/my-skill`). Drop a new file here to add a skill.
+Each skill is a directory containing a `SKILL.md` (e.g. `skills/my-skill/SKILL.md`).
+Claude auto-triggers a skill when its frontmatter `description` matches the current
+context — there's no explicit invocation by name required. Drop a new directory here
+to add a skill.
 
 ### agents/
 
@@ -91,9 +96,10 @@ visible in history, never silent.
 /plugin marketplace update
 ```
 
-## Adding a skill or agent
+## Adding a skill, command, or agent
 
-1. Drop a file in `plugins/my-tools/skills/` or `plugins/my-tools/agents/`
-2. Update the `skills` or `agents` array in `plugins/my-tools/.claude-plugin/plugin.json`
-3. Commit and push
-4. On other machines: `/plugin marketplace update`
+1. Drop a `skills/<name>/SKILL.md`, `commands/<name>.md`, or `agents/<name>.md` file
+   under `plugins/my-tools/`. No manifest to update — all three are auto-discovered
+   by directory convention.
+2. Commit and push
+3. On other machines: `/plugin marketplace update`
