@@ -2,13 +2,15 @@
 name: design-preview
 description: >
   Draft a PlantUML class diagram for proposed new or changed structure before writing
-  any code, with new/changed elements rendered in an obvious highlight color, plus a
-  list of the files that will be created or modified — then pause for the user to
-  explicitly validate the design. Trigger unconditionally whenever new classes,
-  interfaces, or relationships are about to be introduced as part of planned
-  implementation work — not gated on "is this unusual," unlike algorithm-diagrams.
-  Primarily invoked from the feature-workflow skill's Spec phase, but usable
-  standalone whenever a design needs sign-off before code.
+  any code, drawn together with its existing neighborhood (the real callers and
+  callees already in the codebase, not just the new classes in isolation), with
+  new/changed elements rendered in an obvious highlight color, plus a list of the
+  files that will be created or modified — then pause for the user to explicitly
+  validate the design. Trigger unconditionally whenever new classes, interfaces, or
+  relationships are about to be introduced as part of planned implementation work —
+  not gated on "is this unusual," unlike algorithm-diagrams. Primarily invoked from
+  the feature-workflow skill's Spec phase, but usable standalone whenever a design
+  needs sign-off before code.
 ---
 
 # Design Preview — Propose Structure, Get Sign-Off, Before Any Code
@@ -21,27 +23,47 @@ is about to be introduced. The point is a reliable human checkpoint on architect
 every time, not just when something looks important — "looks important" is exactly
 the kind of judgment that misses things.
 
-## 2. Highlight What's New
+## 2. Highlight What's New — Inside Its Existing Neighborhood
 
 Draw the proposed class diagram in standard PlantUML. Give every new or changed class,
 interface, and relationship a consistent, obvious highlight color — distinct from
 default styling — so the reviewer can spot additions at a glance instead of diffing
 the diagram by hand against what already exists.
 
+**Showing only the new classes is not enough to validate.** The point of the sign-off
+isn't "does this new class look fine on its own" — it's "does this fit correctly into
+the architecture that already exists." That judgment needs the new/changed classes'
+immediate neighborhood: every existing class that calls into them, and every existing
+class they call into or depend on (one hop out in each direction is the default —
+go further only if a reviewer would need it to judge a specific relationship).
+Include those existing classes in the same diagram, in default/unhighlighted styling,
+with the real relationships drawn to them — not just a caption saying they exist.
+
 ```plantuml
 @startuml custom_ore_block
 class Block
+class OreGenerator
+class LootTableRegistry
+
 class CustomOreBlock #FFA500
 class DropTableEntry #FFA500
 
 Block <|-- CustomOreBlock
+OreGenerator --> CustomOreBlock : places
 CustomOreBlock "1" *-- "many" DropTableEntry : #FFA500
+DropTableEntry --> LootTableRegistry : registers with
 @enduml
 ```
 
+Here `OreGenerator` (calls into the new class) and `LootTableRegistry` (called into by
+the new class) are existing code, drawn unhighlighted, so the reviewer can see the new
+piece wired into its real neighbors — not floating alone with no indication of how it's
+actually reached or what it actually touches.
+
 `#FFA500` (orange) is the default highlight; keep whatever color is chosen consistent
 across one project so the reviewer learns it once. Existing, unchanged classes stay
-default/no color.
+default/no color — highlighted only if they themselves are modified (e.g. a new method
+added to an existing class to call the new one).
 
 ## 3. List the Files
 
