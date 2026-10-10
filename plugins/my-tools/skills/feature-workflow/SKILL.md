@@ -59,6 +59,14 @@ whole modpack gets one, and a specific mod built for it might deserve its own to
 don't decide silently — ask the user. If they say yes, the new `NEEDS.md` names its
 parent in section 3 rather than duplicating section 1/2 content.
 
+**Validation gate:** `NEEDS.md` is a premise everything downstream builds on — a bad
+requirement produces a correctly-built wrong thing. Any time this skill creates
+`NEEDS.md` or amends it (a new row in §2, a changed requirement/indicator, a new
+`NEEDS.md` for a sub-feature), present exactly what was added or changed and get the
+user's explicit validation **before** drafting the Spec phase's diagrams — validating
+a design against an unvalidated need is wasted work if the need turns out wrong. If
+`NEEDS.md` is unchanged this increment (already validated earlier), don't re-ask.
+
 ## 4. Per-Increment Log (`STATE.md`)
 
 Append-only, newest entry at top — same convention as the `decision-log` skill's
@@ -103,7 +111,7 @@ phase/increment.
 
 | Phase | Skill(s) invoked | Gate to advance | STATE.md records |
 |---|---|---|---|
-| **Spec** | `design-preview` (always), `algorithm-diagrams` (only if its own conditions are met), `architecture`, `type-safety` | User explicitly validates the proposed class diagram + file list (and activity diagram, if one was drafted) | Diagram path(s), file list; "awaiting validation" until confirmed |
+| **Spec** | `design-preview` (always), `algorithm-diagrams` (only if its own conditions are met), `architecture`, `type-safety` | If `NEEDS.md` was created/amended for this increment, the user validates that change **first** — the design is never drafted against an unvalidated need. Then: user explicitly validates the proposed class diagram + file list (and activity diagram, if one was drafted) | Any `NEEDS.md` addition/change; diagram path(s), file list; "awaiting validation" until confirmed |
 | **Tests** | `testing` | Tests are written and **failing** (red), before any implementation code exists | Test files added, expected-failure state noted |
 | **Implement** | `function-design`, `naming-conventions`, `type-safety`, `error-handling`, `decision-log`, `python-conventions` (as applicable) | The tests from the previous phase now **pass** (green) | Decisions made = pointer into the target project's `DECISIONS.md` only, never the rationale itself |
 | **Review** | `per-file-review` (file-local) and `architecture` (cross-file) run first | **The user is the actual gate** — automated findings inform the review, they never substitute for it | Findings surfaced, user's resolution/acceptance of each |
