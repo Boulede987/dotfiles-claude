@@ -48,6 +48,79 @@ def export(driver):
 At the limit, an orchestrator function reads like a table of contents: it names what
 happens and in what order, delegates everything else.
 
+### The "And" Test, Applied — Length Alone Doesn't Clear a Function
+
+A function can look fine by line count and nesting and still fail the "and" test.
+Describe what it does in one sentence — if that sentence needs "and" more than once,
+split it, regardless of how short or flat it reads.
+
+```rust
+// Bad — reads fine at a glance (20 lines, no deep nesting), but: opens the file AND
+// reads+validates the header AND reads the entries table AND parses entries AND
+// constructs the result. Four "and"s — the two read_exact error mappings differ
+// (NotAnArchive vs Truncated) for a real reason, but that reason has nowhere to live
+// since it's not attached to either specific step.
+pub fn open(path: &Path) -> Result<ArcArchive, ArcError> {
+    let mut file = File::open(path).map_err(ArcError::Io)?;
+    let mut header = [0u8; HEADER_LEN];
+    file.read_exact(&mut header).map_err(|error| match error.kind() {
+        io::ErrorKind::UnexpectedEof => ArcError::NotAnArchive,
+        _ => ArcError::Io(error),
+    })?;
+    let mut reader = Reader::new(&header);
+    if reader.bytes(4) != Ok(MAGIC) {
+        return Err(ArcError::NotAnArchive);
+    }
+    let version = reader.u16().expect("header holds 8 bytes");
+    if version != SUPPORTED_VERSION {
+        return Err(ArcError::UnsupportedVersion(version));
+    }
+    let count = reader.u16().expect("header holds 8 bytes") as usize;
+    let mut table = vec![0u8; count * ENTRY_LEN];
+    file.read_exact(&mut table).map_err(from_io)?;
+    let entries = table.as_chunks::<ENTRY_LEN>().0.iter().map(parse_entry).collect();
+    Ok(ArcArchive { path: path.to_owned(), entries })
+}
+
+// Good — open() is an orchestrator, reads like a table of contents. Splitting out
+// read_header() gives the two different error-mappings a home: the WHY comment now
+// sits on the exact code it explains, instead of a reader having to reconstruct the
+// state-machine reasoning (truncated-before-we-know-it's-ours vs truncated-after)
+// while scanning past unrelated table-reading code.
+pub fn open(path: &Path) -> Result<ArcArchive, ArcError> {
+    let mut file = File::open(path).map_err(ArcError::Io)?;
+    let count = read_header(&mut file)?;
+    let entries = read_entries(&mut file, count)?;
+    Ok(ArcArchive { path: path.to_owned(), entries })
+}
+
+/// A header that's cut short means this isn't an ARC file at all — distinct from a
+/// truncated entries table below, which means real corruption of a file we've
+/// already confirmed is ours.
+fn read_header(file: &mut File) -> Result<usize, ArcError> {
+    let mut header = [0u8; HEADER_LEN];
+    file.read_exact(&mut header).map_err(|error| match error.kind() {
+        io::ErrorKind::UnexpectedEof => ArcError::NotAnArchive,
+        _ => ArcError::Io(error),
+    })?;
+    let mut reader = Reader::new(&header);
+    if reader.bytes(4) != Ok(MAGIC) {
+        return Err(ArcError::NotAnArchive);
+    }
+    let version = reader.u16().expect("header holds 8 bytes");
+    if version != SUPPORTED_VERSION {
+        return Err(ArcError::UnsupportedVersion(version));
+    }
+    Ok(reader.u16().expect("header holds 8 bytes") as usize)
+}
+
+fn read_entries(file: &mut File, count: usize) -> Result<Vec<ArcEntry>, ArcError> {
+    let mut table = vec![0u8; count * ENTRY_LEN];
+    file.read_exact(&mut table).map_err(from_io)?;
+    Ok(table.as_chunks::<ENTRY_LEN>().0.iter().map(parse_entry).collect())
+}
+```
+
 ---
 
 ## 2. Avoid Deep Nesting
