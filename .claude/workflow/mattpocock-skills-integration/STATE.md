@@ -1,3 +1,86 @@
+## 2026-11-05 — Increment 4: document Pocock skills — Phase: Report
+
+**Phase & Gate:** Increment 4 complete; awaiting user validation, then the closing commit.
+
+**What changed:**
+- README Setup installs `mattpocock-skills`; README category with seven filled
+  Problem/Solution entries (written by the AI at the user's request); `coding` index rows.
+  Requirements 1 and 4 of NEEDS.md met.
+
+**Decisions made:** none
+
+**State of known issues:**
+- Open: branch not merged into `main`.
+- Open: `/setup-matt-pocock-skills` not yet run in any project.
+
+**Next steps:**
+1. Increment 5: remove overlaps so `my-tools` and Pocock's skills only complement each other (Q1–Q6 already accepted).
+
+**CLAUDE.md update suggestions:** none (increment 5 rewords the existing "his wins" line)
+
+## 2026-11-05 — Increment 4: document Pocock skills — Phase: Commit
+
+**Phase & Gate:** User signed off Review (entries filled by the AI at the user's request first). Commit made and pushed. Gate met.
+
+**What changed:**
+- 7b3f0ab docs(readme): document Matt Pocock's skills and their setup
+
+**Decisions made:** none
+
+**State of known issues:** none new
+
+**Next steps:**
+1. Report phase.
+
+## 2026-11-05 — Increment 4: document Pocock skills — Phase: Review
+
+**Phase & Gate:** Self-review: Setup commands match the installed marketplace/plugin
+names (`mattpocock`, `mattpocock-skills@mattpocock`); README category placed after
+Documentation skills, nested `<details>` balanced; `coding` rows name each Pocock skill
+with its `my-tools` companion. Gate NOT met — awaiting user sign-off.
+
+**What changed:** none (review only)
+
+**Decisions made:** none
+
+**State of known issues:**
+- Open: the seven Pocock README entries hold `_TODO_` placeholders for the user to write.
+
+**Next steps:**
+1. User signs off; then Commit.
+
+## 2026-11-05 — Increment 4: document Pocock skills — Phase: Build — OVERRIDDEN BY USER
+
+**Phase & Gate:** Gate (every agreed seam has a passing test) not met: documentation-only
+change, nothing to test. Validated file list implemented.
+
+**What changed:**
+- `README.md` — Setup step 3 installs `mattpocock-skills` + per-project `/setup-matt-pocock-skills` note; new "Matt Pocock's skills (upstream)" category with seven `_TODO_` entries.
+- `plugins/my-tools/skills/coding/SKILL.md` — index rows for `tdd`, `codebase-design`, `diagnosing-bugs`.
+
+**Decisions made:** none
+
+**State of known issues:** none new
+
+**Next steps:**
+1. Review phase.
+
+## 2026-11-05 — Increment 4: document Pocock skills — Phase: Spec
+
+**Phase & Gate:** NEEDS.md unchanged (requirements 1 and 4 cover this increment) — no
+grilling, no re-validation. Spec drafted: README Setup + Pocock category + `coding`
+index rows; no structural change, so no diagram proposed. Gate NOT met — awaiting
+validation of the file list and layout.
+
+**What changed:** none yet
+
+**Decisions made:** none
+
+**State of known issues:** none new
+
+**Next steps:**
+1. User validates the file list and README layout.
+
 ## 2026-11-05 — Increment 3: state lands in the increment's last commit — Phase: Report
 
 **Phase & Gate:** Increment 3 complete; awaiting user validation, then the closing
