@@ -1,3 +1,41 @@
+## 2026-11-05 — Increment 2: feature-workflow uses Pocock skills — Phase: Report
+
+**Phase & Gate:** Increment 2 complete; awaiting user validation before increment 3 opens.
+
+**What changed:**
+- `feature-workflow` now runs Spec → Build → Review → Commit → Report: `grilling` before
+  NEEDS.md changes, `tdd` loop in Build (`diagnosing-bugs` for bug fixes), Review adds
+  Pocock `code-review` and owns refactoring. Command, README flowchart, ADR 0005
+  (accepted) and ADR 0007 updated. Requirement 3 of NEEDS.md met.
+
+**Decisions made:** see docs/adr/0007-merge-tests-and-implement-into-build.md, docs/adr/0005-review-pairs-per-file-review-and-code-review.md
+
+**State of known issues:**
+- Open: branch `mattpocock-skills-integration` pushed, not merged; installed plugin still runs `main`'s old workflow until merge + `/plugin marketplace update`.
+- Open: `/setup-matt-pocock-skills` not yet run in any project (Review falls back without it).
+- Open: `architecture` may be too large — candidate for its own feature.
+
+**Next steps:**
+1. Increment 3: README Setup installs `mattpocock-skills`; README Problem/Solution entries for adopted Pocock skills; `coding` index lists them.
+
+**CLAUDE.md update suggestions:** none
+
+## 2026-11-05 — Increment 2: feature-workflow uses Pocock skills — Phase: Commit
+
+**Phase & Gate:** User signed off Review. Commits made and pushed; no diagram to
+regenerate (README mermaid is the diagram, committed). Gate met.
+
+**What changed:**
+- 85baf0d refactor(skills): merge feature-workflow Tests and Implement into Build
+- 7955025 feat(skills): add grilling and code-review to feature-workflow
+
+**Decisions made:** none new
+
+**State of known issues:** none new
+
+**Next steps:**
+1. Report phase.
+
 ## 2026-11-05 — Increment 2: feature-workflow uses Pocock skills — Phase: Review
 
 **Phase & Gate:** Self-review against `writing-for-agents` and cross-reference
