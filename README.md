@@ -286,6 +286,78 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 
 </details>
 
+<details>
+<summary><b>Matt Pocock's skills (upstream)</b></summary>
+
+From [mattpocock/skills](https://github.com/mattpocock/skills), installed as the
+`mattpocock-skills` plugin and never copied here. Where one overlaps a `my-tools`
+skill, his wins ([ADR 0001](docs/adr/0001-use-mattpocock-skills-from-upstream.md)).
+
+<details>
+<summary><code>tdd</code></summary>
+
+**Problem:** Tests written all at once, before or after the code, end up testing an imagined design, or simply repeat what the code already does. Tests coupled to internals break on every refactor.
+
+**Solution:** The AI agrees with the user which seams (public boundaries) to test, then works one seam at a time: one failing test, then the minimal code to pass it. Tests go through public interfaces, mock only system boundaries, and never recompute the expected value the way the code does. Refactoring waits for review. `testing` adds Arrange-Act-Assert, failure paths and independent tests on top.
+
+</details>
+
+<details>
+<summary><code>codebase-design</code></summary>
+
+**Problem:** Modules with a large interface and little behind it ("shallow" modules) push complexity onto every caller and are hard to test. Without shared words for this, design discussions stay vague.
+
+**Solution:** A shared vocabulary (module, interface, seam, adapter, depth) and the goal of deep modules: a lot of behavior behind a small interface, tested through that interface. A seam is only introduced when something actually varies across it. `architecture` uses this vocabulary for module interfaces.
+
+</details>
+
+<details>
+<summary><code>domain-modeling</code></summary>
+
+**Problem:** Terms drift (one word, two meanings), and the reasons behind hard-to-reverse decisions get lost or scattered.
+
+**Solution:** Resolved terms go into `GLOSSARY.md` as they're settled. Decisions that are hard to reverse, surprising without context, and the result of a real trade-off become short ADRs in `docs/adr/`. `decision-log` uses its ADR format for every decision record.
+
+</details>
+
+<details>
+<summary><code>code-review</code></summary>
+
+**Problem:** A review that only checks style misses whether the change does what was asked, and one reviewer juggling both checks does each worse.
+
+**Solution:** Two parallel sub-agents review the diff since a fixed point: one against the repo's documented standards plus a baseline of code smells, one against the spec. In feature-workflow's Review phase, the spec is the feature's `NEEDS.md`, and it runs alongside `per-file-review` and `architecture`.
+
+</details>
+
+<details>
+<summary><code>grilling</code></summary>
+
+**Problem:** A plan or need that sounds clear often hides unstated assumptions, which surface only once the work is built wrong.
+
+**Solution:** The AI interviews the user in rounds: each round asks every question whose prerequisites are settled, with a recommended answer, until no branch of the decision tree is left open. It looks up facts itself instead of asking. feature-workflow runs it before any `NEEDS.md` change is validated.
+
+</details>
+
+<details>
+<summary><code>diagnosing-bugs</code></summary>
+
+**Problem:** Debugging by reading code and guessing leads to fixes for the wrong cause, and bugs that come back.
+
+**Solution:** Before any theory, the AI builds a tight feedback loop: one fast, deterministic command that goes red on this exact bug. It then reproduces and minimizes the bug, tests hypotheses against the loop, and fixes it. In feature-workflow's Build phase, that red loop is the first failing test.
+
+</details>
+
+<details>
+<summary><code>writing-for-agents</code></summary>
+
+**Problem:** Skills and `CLAUDE.md` files are read by an agent, not a person. Vague trigger wording, duplicated rules and long files make the agent behave differently from run to run.
+
+**Solution:** Rules for writing agent documents: precise trigger wording, each rule in one place, rarely needed detail moved behind pointers, steps with a clear "done" condition, positive phrasing over prohibitions, and regular pruning. Used whenever a `my-tools` skill is edited.
+
+</details>
+
+</details>
+
 ---
 
 ## Setup (first time on a new machine)
@@ -296,7 +368,14 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 
 # 2. Install the plugin
 /plugin install my-tools
+
+# 3. Register Matt Pocock's marketplace and install his skills
+/plugin marketplace add mattpocock/skills
+/plugin install mattpocock-skills@mattpocock
 ```
+
+Then, once in each project where feature-workflow's Review phase should use his
+`code-review`, run `/setup-matt-pocock-skills`.
 
 ## Picking up changes after a push
 

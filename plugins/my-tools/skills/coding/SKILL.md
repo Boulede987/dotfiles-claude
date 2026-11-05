@@ -25,6 +25,9 @@ one(s) matching the task at hand instead of treating this file as the whole stan
 | `testing` | Additions to `mattpocock-skills:tdd`: Arrange-Act-Assert, failure-path coverage, independent tests | Writing tests, reviewing test coverage (fixing a bug: `mattpocock-skills:diagnosing-bugs`) |
 | `type-safety` | Typing public boundaries, named structures over dict/Any, narrow return types | Defining a signature, passing a raw dict/Any across a boundary, an ambiguous `Optional` return |
 | `python-conventions` | `__main__` guard, Windows console encoding | Writing or reviewing Python specifically |
+| `mattpocock-skills:tdd` | Red → green loop, seams agreed with the user, what a good test is, mocking at boundaries | Writing tests or test-first code (with `testing`'s additions) |
+| `mattpocock-skills:codebase-design` | Module interfaces, seams, adapters, depth | Designing an interface or deciding where a seam goes (with `architecture`) |
+| `mattpocock-skills:diagnosing-bugs` | Building a failing reproduction before fixing a bug | Fixing a bug or a performance regression |
 
 ## How to Apply This Skill
 
