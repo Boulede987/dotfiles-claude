@@ -1,3 +1,89 @@
+## 2026-11-05 — Increment 5: remove overlaps — Phase: Report
+
+**Phase & Gate:** Increment 5 complete; awaiting user validation, then the closing commit.
+
+**What changed:**
+- Overlapping `my-tools` rules removed (`architecture` DIP + YAGNI, `testing`'s `tdd`
+  summary); every reference to a Pocock skill is now a complement pointer; ADR 0008
+  supersedes 0001. All NEEDS.md requirements met.
+
+**Decisions made:** see docs/adr/0008-my-tools-complements-pocock-skills.md
+
+**State of known issues:**
+- Open: branch `mattpocock-skills-integration` not merged into `main`; the installed plugin runs `main` until merge + `/plugin marketplace update`.
+- Open: `/setup-matt-pocock-skills` not yet run in any project.
+
+**Next steps:**
+1. Merge `mattpocock-skills-integration` into `main`, then `/plugin marketplace update`.
+
+**CLAUDE.md update suggestions:** none (already reworded this increment)
+
+## 2026-11-05 — Increment 5: remove overlaps — Phase: Commit
+
+**Phase & Gate:** User signed off Review. Commit made and pushed. Gate met.
+
+**What changed:**
+- 426cb19 refactor(skills): remove my-tools rules that overlap Pocock's skills
+
+**Decisions made:** none new
+
+**State of known issues:** none new
+
+**Next steps:**
+1. Report phase.
+
+## 2026-11-05 — Increment 5: remove overlaps — Phase: Review
+
+**Phase & Gate:** Self-review: no "wins" wording left in skills, README or CLAUDE.md;
+no remaining reference to architecture's removed rules 3/5 (DIP, YAGNI); `architecture`
+down from 282 to 151 lines; its description still routes storage coupling and
+single-implementation abstractions to `codebase-design`. Gate NOT met — awaiting user
+sign-off.
+
+**What changed:** none (review only)
+
+**Decisions made:** none
+
+**State of known issues:** none new
+
+**Next steps:**
+1. User signs off; then Commit.
+
+## 2026-11-05 — Increment 5: remove overlaps — Phase: Build — OVERRIDDEN BY USER
+
+**Phase & Gate:** Gate (every agreed seam has a passing test) not met: markdown-only
+change, nothing to test. Validated file list implemented.
+
+**What changed:**
+- `architecture/SKILL.md` — removed §3 Dependency Inversion and §5 YAGNI (covered by `codebase-design`); intro is a complement pointer; description routes their triggers to `codebase-design`; §4 renumbered to §3.
+- `testing/SKILL.md` — `tdd` summary replaced by a one-line complement pointer.
+- `decision-log/SKILL.md` — `domain-modeling` pointer reworded as a complement.
+- `coding/SKILL.md`, `per-file-review/SKILL.md` — `architecture` rows drop DIP/YAGNI.
+- `CLAUDE.md`, README Pocock intro, README `architecture`/`testing` Solutions — "complements", no "wins".
+- `docs/adr/0008-my-tools-complements-pocock-skills.md` — new; `docs/adr/0001` marked superseded.
+- `NEEDS.md` — new complement requirement row (validated via grilling Q2), met.
+
+**Decisions made:** see docs/adr/0008-my-tools-complements-pocock-skills.md
+
+**State of known issues:** none new
+
+**Next steps:**
+1. Review phase.
+
+## 2026-11-05 — Increment 5: remove overlaps — Phase: Spec
+
+**Phase & Gate:** Grilling round Q1–Q6 accepted; NEEDS.md row validated (Q2); file list
+validated by the user. No diagram (removals and rewording only). Gate met.
+
+**What changed:** none (spec only)
+
+**Decisions made:** none yet
+
+**State of known issues:** none new
+
+**Next steps:**
+1. Build.
+
 ## 2026-11-05 — Increment 4: document Pocock skills — Phase: Report
 
 **Phase & Gate:** Increment 4 complete; awaiting user validation, then the closing commit.

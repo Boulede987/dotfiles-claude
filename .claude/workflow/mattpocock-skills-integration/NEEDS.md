@@ -21,3 +21,4 @@ in sessions. What's missing is how they fit together with `my-tools`.
 | `feature-workflow` invokes the relevant Pocock skills at the right phases | Phase table in `feature-workflow/SKILL.md` names each Pocock skill used and when | met |
 | The README documents which Pocock skills are used and why | README has an entry per adopted Pocock skill, using the Problem/Solution pattern | met |
 | Each increment is self-contained in git: its accepted Report and its state land in its own last commit | After any Report is approved, `git status` shows no changes under `.claude/workflow/<slug>/` | met |
+| `my-tools` and Pocock's skills complement each other: no `my-tools` skill restates or contradicts one of his | Every reference from a `my-tools` skill to a Pocock skill is a pointer for something it doesn't cover itself; no "his wins" wording left anywhere | met |
