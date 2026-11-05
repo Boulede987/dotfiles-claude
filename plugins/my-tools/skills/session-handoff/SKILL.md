@@ -23,6 +23,9 @@ Any bugs, blockers, or instabilities discovered this session. Note whether they 
 ### Next steps
 Concrete, ordered — not a wishlist. The first item should be the thing to do literally at the start of the next session.
 
+### Suggested skills
+Name the skills the next session should call the Skill tool for, given the next steps (e.g. `my-tools:feature-workflow` to resume an increment, `mattpocock-skills:diagnosing-bugs` for an open bug). One line each, with the reason.
+
 ### CLAUDE.md update suggestions
 If anything learned this session should be permanently added to the project's CLAUDE.md (new conventions, discovered constraints, important paths, gotchas), list them here as ready-to-paste lines. Don't add them automatically — surface them for the user to approve.
 
