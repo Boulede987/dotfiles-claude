@@ -1,3 +1,60 @@
+## 2026-11-05 — Increment 2: feature-workflow uses Pocock skills — Phase: Review
+
+**Phase & Gate:** Self-review against `writing-for-agents` and cross-reference
+consistency: no remaining Tests/Implement/"six phases" references in the skill, command
+or README; one wrapped line fixed; Spec row now names `grilling`. Gate NOT met —
+awaiting user sign-off.
+
+**What changed:** `feature-workflow/SKILL.md` (rewrap, `grilling` in Spec row)
+
+**Decisions made:** none
+
+**State of known issues:** none new
+
+**Next steps:**
+1. User signs off; then Commit.
+
+## 2026-11-05 — Increment 2: feature-workflow uses Pocock skills — Phase: Build — OVERRIDDEN BY USER
+
+**Phase & Gate:** Gate (every agreed seam has a passing test) not met: markdown-only
+changes, nothing to test; user agreed up front to the same override as increment 1.
+Validated file list implemented.
+
+**What changed:**
+- `plugins/my-tools/skills/feature-workflow/SKILL.md` — Build phase replaces Tests + Implement (`tdd` loop, `diagnosing-bugs` for bug fixes); `grilling` before NEEDS.md validation; Review adds `code-review` with fallback; refactoring in Review.
+- `plugins/my-tools/commands/feature-workflow.md` — phase list in description.
+- `README.md` — new mermaid flowchart; feature-workflow Solution phase list.
+- `docs/adr/0005` — status accepted.
+- `docs/adr/0007-merge-tests-and-implement-into-build.md` — new.
+- `NEEDS.md` — requirement 3 status set to met.
+
+**Decisions made:** see docs/adr/0007-merge-tests-and-implement-into-build.md, docs/adr/0005-review-pairs-per-file-review-and-code-review.md
+
+**State of known issues:** none new
+
+**Next steps:**
+1. Review phase.
+
+## 2026-11-05 — Increment 2: feature-workflow uses Pocock skills — Phase: Spec
+
+**Phase & Gate:** NEEDS.md unchanged (requirement 3 covers this increment) — no
+re-validation. User accepted Q1–Q5: merge Tests + Implement into a Build phase running
+`tdd`'s loop; `grilling` before NEEDS.md creation/amendment; `diagnosing-bugs` opens
+Build for bug fixes; Review = `per-file-review` + `architecture` + Pocock `code-review`
+(NEEDS.md as spec), refactoring happens in Review; README mermaid is the diagram. Gate
+NOT met — awaiting validation of the drafted mermaid flowchart and file list.
+
+**What changed:** none yet (diagram drafted in chat)
+
+**Decisions made:** none recorded yet (ADR 0007 and ADR 0005 → accepted during Build)
+
+**State of known issues:**
+- Open: installed plugin copy comes from `main`; branch changes only apply after merge + `/plugin marketplace update`.
+
+**Next steps:**
+1. User validates the mermaid draft + file list.
+2. Build phase (no tests possible for markdown — expect the same override as increment 1).
+
 ## 2026-11-05 — Increment 1: resolve overlaps — Phase: Report
 
 **Phase & Gate:** Increment 1 complete; awaiting user validation before increment 2 opens.

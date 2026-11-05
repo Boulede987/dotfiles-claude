@@ -18,5 +18,5 @@ in sessions. What's missing is how they fit together with `my-tools`.
 |---|---|---|
 | Pocock's skills are available on every machine, from upstream, and stay up to date without copying files into this repo | README Setup installs `mattpocock-skills`; no Pocock skill file is vendored into `plugins/my-tools/` | in progress |
 | Every overlap between a Pocock skill and a `my-tools` skill has a decided rule (use mine, use theirs, or combine) | One ADR in `docs/adr/` per overlapping pair (e.g. `testing`/`tdd`, `decision-log`/`domain-modeling`, `per-file-review`/`code-review`, `session-handoff`/`handoff`) | met |
-| `feature-workflow` invokes the relevant Pocock skills at the right phases | Phase table in `feature-workflow/SKILL.md` names each Pocock skill used and when | not started |
+| `feature-workflow` invokes the relevant Pocock skills at the right phases | Phase table in `feature-workflow/SKILL.md` names each Pocock skill used and when | met |
 | The README documents which Pocock skills are used and why | README has an entry per adopted Pocock skill, using the Problem/Solution pattern | not started |

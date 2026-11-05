@@ -72,26 +72,36 @@ cross-session cycle for building one increment at a time:
 
 ```mermaid
 flowchart TD
-    Start(["/feature-workflow slug"]) --> NeedsCheck{"NEEDS.md changed?"}
-    NeedsCheck -- yes --> ValidateNeeds["User validates NEEDS.md change"]
+    Start(["/feature-workflow slug"]) --> NeedsCheck{"NEEDS.md to create
+or amend?"}
+    NeedsCheck -- yes --> Grill["grilling — until shared understanding"]
+    Grill --> ValidateNeeds["User validates NEEDS.md change"]
     ValidateNeeds --> Spec
-    NeedsCheck -- no --> Spec["Spec — design-preview (always)\n+ algorithm-diagrams (if warranted)"]
-    Spec --> GateSpec{"User validates\ndiagram + file list?"}
+    NeedsCheck -- no --> Spec["Spec — design-preview (always)
++ algorithm-diagrams (if warranted)"]
+    Spec --> GateSpec{"User validates
+diagram + file list?"}
     GateSpec -- no --> Spec
-    GateSpec -- yes --> Tests["Tests — write a failing test"]
-    Tests --> GateTests{"Test fails (red)?"}
-    GateTests -- no --> Tests
-    GateTests -- yes --> Implement["Implement — code to pass the test"]
-    Implement --> GateImpl{"Tests pass (green)?"}
-    GateImpl -- no --> Implement
-    GateImpl -- yes --> Review["Review — per-file-review +\narchitecture pass first"]
+    GateSpec -- yes --> Seams["Build — agree test seams with user
+(bug fix: diagnosing-bugs builds the repro first)"]
+    Seams --> Red["Write one failing test at the next seam"]
+    Red --> Green["Write minimal code to pass it"]
+    Green --> GateBuild{"Every agreed seam
+has a passing test?"}
+    GateBuild -- no --> Red
+    GateBuild -- yes --> Review["Review — per-file-review + architecture
++ code-review (NEEDS.md as spec); refactor here"]
     Review --> GateReview{"User signs off?"}
-    GateReview -- no --> Implement
-    GateReview -- yes --> Commit["Commit — git-workflow rules;\ngenerate-docs overwrites the draft diagram"]
-    Commit --> Report["Report — STATE.md entry\n(session-handoff format)"]
-    Report --> GateReport{"User validates\nbefore next increment?"}
+    GateReview -- no --> Review
+    GateReview -- yes --> Commit["Commit — git-workflow rules;
+generate-docs overwrites the draft diagram"]
+    Commit --> Report["Report — STATE.md entry
+(session-handoff format)"]
+    Report --> GateReport{"User validates
+before next increment?"}
     GateReport -- no --> Report
-    GateReport -- yes --> Pause(["Pause — next increment\nstarts a fresh Spec"])
+    GateReport -- yes --> Pause(["Pause — next increment
+starts a fresh Spec"])
 ```
 
 Every gate can be explicitly overridden ("skip to commit") instead of satisfied —
@@ -114,7 +124,7 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 
 **Problem:** Without a fixed process, work drifts: features stay half-done, steps get skipped, and the AI runs ahead without input. The human is responsible for the AI's work, so they need checkpoints.
 
-**Solution:** We fix the order of phases (Spec → Tests → Implement → Review → Commit → Report) and build in small increments. Each phase needs explicit human validation before the next one starts. A skip is possible but always logged. Progress is saved to disk, so work resumes across sessions.
+**Solution:** We fix the order of phases (Spec → Build → Review → Commit → Report) and build in small increments. Each phase needs explicit human validation before the next one starts. A skip is possible but always logged. Progress is saved to disk, so work resumes across sessions.
 
 </details>
 

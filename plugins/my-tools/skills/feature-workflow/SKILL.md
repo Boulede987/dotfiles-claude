@@ -62,9 +62,11 @@ parent in section 3 rather than duplicating section 1/2 content.
 **Validation gate:** `NEEDS.md` is a premise everything downstream builds on — a bad
 requirement produces a correctly-built wrong thing. Any time this skill creates
 `NEEDS.md` or amends it (a new row in §2, a changed requirement/indicator, a new
-`NEEDS.md` for a sub-feature), present exactly what was added or changed and get the
-user's explicit validation **before** drafting the Spec phase's diagrams — validating
-a design against an unvalidated need is wasted work if the need turns out wrong. If
+`NEEDS.md` for a sub-feature), first call the Skill tool with
+`mattpocock-skills:grilling` and work its frontier until it's empty — shared
+understanding of the need, nothing silently assumed. Then present exactly what was
+added or changed and get the user's explicit validation **before** drafting the Spec
+phase's diagrams — validating a design against an unvalidated need is wasted work if the need turns out wrong. If
 `NEEDS.md` is unchanged this increment (already validated earlier), don't re-ask.
 
 ## 4. Per-Increment Log (`STATE.md`)
@@ -111,9 +113,9 @@ phase/increment.
 
 | Phase | Skill(s) invoked | Gate to advance | STATE.md records |
 |---|---|---|---|
-| **Spec** | `design-preview` (always), `algorithm-diagrams` (only if its own conditions are met), `architecture`, `type-safety` | If `NEEDS.md` was created/amended for this increment, the user validates that change **first** — the design is never drafted against an unvalidated need. Then: user explicitly validates the proposed class diagram + file list (and activity diagram, if one was drafted) | Any `NEEDS.md` addition/change; diagram path(s), file list; "awaiting validation" until confirmed |
+| **Spec** | `mattpocock-skills:grilling` (only when `NEEDS.md` is created/amended, see §3), `design-preview` (always), `algorithm-diagrams` (only if its own conditions are met), `architecture`, `type-safety` | If `NEEDS.md` was created/amended for this increment, the user validates that change **first** — the design is never drafted against an unvalidated need. Then: user explicitly validates the proposed class diagram + file list (and activity diagram, if one was drafted) | Any `NEEDS.md` addition/change; diagram path(s), file list; "awaiting validation" until confirmed |
 | **Build** | `mattpocock-skills:tdd` with `testing`'s additions drive the loop; `mattpocock-skills:diagnosing-bugs` first when the increment fixes a bug (its red-capable repro is the first test); `function-design`, `naming-conventions`, `type-safety`, `error-handling`, `decision-log`, `python-conventions` (as applicable) while writing code | The seams under test are agreed with the user first; then, one seam at a time, a failing test (red) followed by the minimal code that passes it (green). Gate: **every agreed seam has a passing test** | Agreed seams; test and code files per seam; decisions made = pointer to the target project's ADR(s) in `docs/adr/` only, never the rationale itself |
-| **Review** | `per-file-review` (file-local) and `architecture` (cross-file) run first. Refactoring happens here, not in Build | **The user is the actual gate** — automated findings inform the review, they never substitute for it | Findings surfaced, user's resolution/acceptance of each |
+| **Review** | `per-file-review` (file-local), `architecture` (cross-file), and `mattpocock-skills:code-review` against the commit the increment started from, with `NEEDS.md` as the spec, run first. `code-review` needs `/setup-matt-pocock-skills` run once in the target project; if it hasn't been, say so and run the other two. Refactoring happens here, not in Build | **The user is the actual gate** — automated findings inform the review, they never substitute for it | Findings surfaced, user's resolution/acceptance of each |
 | **Commit** | `git-workflow`'s existing branch/commit rules; `generate-docs` regenerates `design-preview`'s diagram(s) from the real, now-implemented code | Commit(s) made referencing the increment; diagram(s) now reflect as-built truth; any `design-preview` preview-copy file is deleted once regeneration lands | Commit hash(es) and message |
 | **Report** | `session-handoff`'s section format, persisted here instead of chat-only | `STATE.md` entry written; user validates before the next increment is allowed to open | Full entry including `CLAUDE.md update suggestions` |
 
