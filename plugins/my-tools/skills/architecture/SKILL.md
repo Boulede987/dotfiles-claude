@@ -13,6 +13,13 @@ description: >
 
 # Architecture: Module Boundaries, DRY, SOLID, YAGNI
 
+**Module interfaces use `mattpocock-skills:codebase-design`'s vocabulary** (module,
+interface, seam, adapter, depth). Call the Skill tool with `codebase-design` when
+designing an interface or deciding where a seam goes; where it and this skill overlap
+(e.g. when an abstraction or seam is warranted), `codebase-design` wins. Small
+extracted functions (`function-design`) don't conflict with deep modules: they live
+inside a module's implementation, behind its interface.
+
 ## 1. Separation of Concerns — Files and Modules (Single Responsibility)
 
 Each module, class, or file should have one clearly defined responsibility. If code
