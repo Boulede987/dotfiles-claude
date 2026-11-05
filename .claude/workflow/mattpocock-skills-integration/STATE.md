@@ -1,3 +1,32 @@
+## 2026-11-05 — Increment 1: resolve overlaps — Phase: Report
+
+**Phase & Gate:** Increment 1 complete; awaiting user validation before increment 2 opens.
+
+**What changed:**
+- `testing` slimmed to additions on top of `tdd`; `decision-log` writes ADRs;
+  `architecture` points to `codebase-design`; `session-handoff` gained "Suggested skills";
+  references in `feature-workflow`, `coding`, `per-file-review`, `naming-conventions`,
+  README updated; ADRs 0001–0006 in `docs/adr/`. Requirement 2 of NEEDS.md met.
+
+**Decisions made:** see docs/adr/0001-use-mattpocock-skills-from-upstream.md through docs/adr/0006-keep-session-handoff.md
+
+**State of known issues:**
+- Open: branch `mattpocock-skills-integration` pushed, not merged into `main`.
+- Open: `/setup-matt-pocock-skills` needed in this repo before Pocock's `code-review` can run (increment 2).
+- Open: `architecture` may be too large — candidate for its own feature.
+- Open: ADR 0005 is `proposed` until increment 2 lands.
+
+**Next steps:**
+1. Increment 2 Spec: `feature-workflow` phase table — `grilling` before NEEDS.md
+   validation, `tdd` seams agreed in Tests, refactoring in Review, Review runs
+   `per-file-review` + Pocock `code-review` (then flip ADR 0005 to accepted).
+2. Increment 3: README Setup installs `mattpocock-skills`; README entries for adopted
+   Pocock skills; `coding` index lists them.
+
+**CLAUDE.md update suggestions:**
+- `Matt Pocock's skills come from the mattpocock-skills plugin; never copy them into plugins/my-tools/. Where they overlap a my-tools skill, his wins (docs/adr/0001).`
+- `Decisions are ADRs in docs/adr/ (domain-modeling format); there is no DECISIONS.md.`
+
 ## 2026-11-05 — Increment 1: resolve overlaps — Phase: Commit
 
 **Phase & Gate:** Commits made on branch `mattpocock-skills-integration`, one per
