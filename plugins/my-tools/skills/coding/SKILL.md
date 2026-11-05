@@ -20,7 +20,7 @@ one(s) matching the task at hand instead of treating this file as the whole stan
 | `naming-conventions` | Magic numbers, abbreviations, constants vs. display strings, comments | Choosing names, extracting a literal, writing/reviewing a comment |
 | `decision-log` | Moving historical/rationale narrative out of comments into an ADR (`docs/adr/`) | Writing a comment about a rejected alternative, past experiment, or benchmark; relying on a past decision |
 | `function-design` | Function size, extraction, nesting, loop exit conditions | A function is long, does multiple things, or has nested control flow |
-| `architecture` | File/module boundaries, large-file smell, DRY/registry pattern, SOLID, YAGNI | Organizing files, deduplicating logic, coupling to a storage format, growing conditional chains, speculative abstraction |
+| `architecture` | File/module boundaries, large-file smell, DRY/registry pattern, Open/Closed, Liskov, Interface Segregation | Organizing files, deduplicating logic, growing conditional chains, a subclass rejecting an inherited method |
 | `error-handling` | Explicit failure handling, no silent `None`/swallowed exceptions, input validation at trust boundaries | Writing or reviewing try/except, deciding a failure return value, handling external input |
 | `testing` | Additions to `mattpocock-skills:tdd`: Arrange-Act-Assert, failure-path coverage, independent tests | Writing tests, reviewing test coverage (fixing a bug: `mattpocock-skills:diagnosing-bugs`) |
 | `type-safety` | Typing public boundaries, named structures over dict/Any, narrow return types | Defining a signature, passing a raw dict/Any across a boundary, an ambiguous `Optional` return |

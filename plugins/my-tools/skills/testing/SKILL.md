@@ -9,18 +9,9 @@ description: >
 
 # Testing Discipline — Additions to `tdd`
 
-**`mattpocock-skills:tdd` is the base.** Call the Skill tool with `tdd` for everything
-it covers — where it and this skill overlap, `tdd` wins:
-
-- the red → green loop, one slice at a time, at seams agreed with the user first;
-- what a good test is (behavior through the public interface, not implementation);
-- mocking only at system boundaries;
-- anti-patterns (implementation-coupled, tautological, horizontal slicing).
-
-Refactoring sits outside the loop, in the review stage, as `tdd` defines it. For a bug
-fix, build the failing reproduction with `mattpocock-skills:diagnosing-bugs`.
-
-This skill adds three rules `tdd` doesn't state.
+This skill complements `mattpocock-skills:tdd`: the test loop, what makes a good test,
+and mocking belong to `tdd` (call the Skill tool with `tdd`), and a bug fix's failing
+reproduction to `mattpocock-skills:diagnosing-bugs`. This skill adds three rules.
 
 ---
 

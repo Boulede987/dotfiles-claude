@@ -20,13 +20,12 @@ a bad fit for inline placement: they accumulate forever at one spot, carry no vi
 signal that they might be outdated, and bulk up files that should read as current logic.
 Moving them to an ADR instead of deleting them keeps the value.
 
-**ADRs are owned by `mattpocock-skills:domain-modeling`.** Its `ADR-FORMAT.md` is the
-single source of truth for location (`docs/adr/`), numbering (`0001-slug.md`), the
+This skill complements `mattpocock-skills:domain-modeling`, which owns ADRs: its
+`ADR-FORMAT.md` defines location (`docs/adr/`), numbering (`0001-slug.md`), the
 template, and the bar for when a decision deserves an ADR. Call the Skill tool with
-`domain-modeling` for its ADR format and the bar for writing one only, not its glossary
-work; this skill only adds the rules below, which it
-doesn't cover: what moves out of comments, the pointer, verifying before relying, and
-migrating existing comments.
+`domain-modeling` for that format and bar only, not its glossary work. This skill adds
+what moves out of comments, the pointer, verifying before relying, and migrating
+existing comments.
 
 This does not replace the `naming-conventions` skill's comment rule (comments explain
 *why*, not *what*) — a short, local WHY tied to the exact line it explains still belongs

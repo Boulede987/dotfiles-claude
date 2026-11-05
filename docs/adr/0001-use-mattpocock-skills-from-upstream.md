@@ -1,3 +1,7 @@
+---
+status: superseded by ADR-0008
+---
+
 # Use Matt Pocock's skills from upstream; his win on overlap
 
 Matt Pocock's skills (https://github.com/mattpocock/skills) are installed as the

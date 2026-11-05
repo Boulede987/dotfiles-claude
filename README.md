@@ -176,7 +176,7 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 
 **Problem:** A codebase must stay extensible, testable, understandable and modifiable as it grows.
 
-**Solution:** We apply principles that hold in any project: one responsibility per module, DRY, dependency inversion and the rest of SOLID. YAGNI balances them: no abstraction until a second real case exists.
+**Solution:** We apply principles that hold in any project: one responsibility per module, DRY, and Open/Closed, Liskov and Interface Segregation from SOLID. Module interfaces, dependency direction and when an abstraction is warranted belong to Matt Pocock's `codebase-design`, which this skill points to.
 
 </details>
 
@@ -221,7 +221,7 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 
 **Problem:** Without tests, important code becomes scary to change, so we stop changing it and it rots.
 
-**Solution:** Matt Pocock's `tdd` is the base: a failing test first, tests that check behavior rather than internals, mocks only at external boundaries. This skill adds what `tdd` doesn't cover: Arrange-Act-Assert, failure-path coverage, and tests that run independently.
+**Solution:** This skill complements Matt Pocock's `tdd`, which owns the test loop, what makes a good test, and mocking. It adds Arrange-Act-Assert, failure-path coverage, and tests that run independently.
 
 </details>
 
@@ -290,8 +290,9 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 <summary><b>Matt Pocock's skills (upstream)</b></summary>
 
 From [mattpocock/skills](https://github.com/mattpocock/skills), installed as the
-`mattpocock-skills` plugin and never copied here. Where one overlaps a `my-tools`
-skill, his wins ([ADR 0001](docs/adr/0001-use-mattpocock-skills-from-upstream.md)).
+`mattpocock-skills` plugin and never copied here. They and the `my-tools` skills
+complement each other: neither restates nor contradicts the other
+([ADR 0008](docs/adr/0008-my-tools-complements-pocock-skills.md)).
 
 <details>
 <summary><code>tdd</code></summary>
