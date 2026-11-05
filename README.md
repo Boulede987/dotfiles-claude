@@ -209,7 +209,7 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 
 **Problem:** Without tests, important code becomes scary to change, so we stop changing it and it rots.
 
-**Solution:** New behavior and bug fixes start with a failing test (TDD). Tests check behavior, not internals, so refactoring doesn't break them. They mock only external boundaries, cover failure paths, and run independently.
+**Solution:** Matt Pocock's `tdd` is the base: a failing test first, tests that check behavior rather than internals, mocks only at external boundaries. This skill adds what `tdd` doesn't cover: Arrange-Act-Assert, failure-path coverage, and tests that run independently.
 
 </details>
 
