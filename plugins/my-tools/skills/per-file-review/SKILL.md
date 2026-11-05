@@ -29,12 +29,12 @@ That's most of the `coding` skill's rule set:
 |---|---|---|
 | `function-design` | Yes | Function length, nesting, extraction — all visible in one file |
 | `naming-conventions` | Yes | Magic numbers, constants, comments, primitive obsession, the invariant-not-owner rule |
-| `decision-log` | Yes | Whether a comment is narrative-history that should move to `DECISIONS.md` |
+| `decision-log` | Yes | Whether a comment is narrative-history that should move to an ADR |
 | `python-conventions` | Yes | `__main__` guard, encoding — properties of the one file |
 | `type-safety` | Yes | Signature typing is visible without the caller |
 | `error-handling` | Yes | Swallowed exceptions, ambiguous `None` returns — visible in the function itself |
-| `testing` | Mostly | A test file's own structure/naming/AAA; mocking-the-boundary needs the target module too, so pass both files together when reviewing a test |
-| `architecture` | **No** | SRP/DRY/DIP/SOLID/YAGNI need to see other files (is this duplicated elsewhere? does another class already exist?) — exclude from per-file dispatch |
+| `testing` | Mostly | A test file's own Arrange-Act-Assert structure, failure-path coverage, and independence; judging a mock against `tdd`'s boundary rule needs the target module too, so pass both files together when reviewing a test |
+| `architecture` | **No** | SRP/DRY/SOLID need to see other files (is this duplicated elsewhere? does another class already exist?) — exclude from per-file dispatch |
 
 `architecture` (and any cross-file correctness concern) stays a separate, whole-repo
 pass — either the `code-review` skill or a manual read across the affected files. Don't

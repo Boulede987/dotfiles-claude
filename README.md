@@ -72,26 +72,38 @@ cross-session cycle for building one increment at a time:
 
 ```mermaid
 flowchart TD
-    Start(["/feature-workflow slug"]) --> NeedsCheck{"NEEDS.md changed?"}
-    NeedsCheck -- yes --> ValidateNeeds["User validates NEEDS.md change"]
+    Start(["/feature-workflow slug"]) --> NeedsCheck{"NEEDS.md to create
+or amend?"}
+    NeedsCheck -- yes --> Grill["grilling — until shared understanding"]
+    Grill --> ValidateNeeds["User validates NEEDS.md change"]
     ValidateNeeds --> Spec
-    NeedsCheck -- no --> Spec["Spec — design-preview (always)\n+ algorithm-diagrams (if warranted)"]
-    Spec --> GateSpec{"User validates\ndiagram + file list?"}
+    NeedsCheck -- no --> Spec["Spec — design-preview (always)
++ algorithm-diagrams (if warranted)"]
+    Spec --> GateSpec{"User validates
+diagram + file list?"}
     GateSpec -- no --> Spec
-    GateSpec -- yes --> Tests["Tests — write a failing test"]
-    Tests --> GateTests{"Test fails (red)?"}
-    GateTests -- no --> Tests
-    GateTests -- yes --> Implement["Implement — code to pass the test"]
-    Implement --> GateImpl{"Tests pass (green)?"}
-    GateImpl -- no --> Implement
-    GateImpl -- yes --> Review["Review — per-file-review +\narchitecture pass first"]
+    GateSpec -- yes --> Seams["Build — agree test seams with user
+(bug fix: diagnosing-bugs builds the repro first)"]
+    Seams --> Red["Write one failing test at the next seam"]
+    Red --> Green["Write minimal code to pass it"]
+    Green --> GateBuild{"Every agreed seam
+has a passing test?"}
+    GateBuild -- no --> Red
+    GateBuild -- yes --> Review["Review — per-file-review + architecture
++ code-review (NEEDS.md as spec); refactor here"]
     Review --> GateReview{"User signs off?"}
-    GateReview -- no --> Implement
-    GateReview -- yes --> Commit["Commit — git-workflow rules;\ngenerate-docs overwrites the draft diagram"]
-    Commit --> Report["Report — STATE.md entry\n(session-handoff format)"]
-    Report --> GateReport{"User validates\nbefore next increment?"}
+    GateReview -- no --> Review
+    GateReview -- yes --> Commit["Commit — git-workflow rules;
+generate-docs overwrites the draft diagram"]
+    Commit --> Report["Report — STATE.md entry
+(session-handoff format)"]
+    Report --> GateReport{"User validates
+before next increment?"}
     GateReport -- no --> Report
-    GateReport -- yes --> Pause(["Pause — next increment\nstarts a fresh Spec"])
+    GateReport -- yes --> CloseCommit["Close — commit STATE.md (+ NEEDS.md)
+as the increment's last commit; push if Commit pushed"]
+    CloseCommit --> Pause(["Pause — next increment
+starts a fresh Spec"])
 ```
 
 Every gate can be explicitly overridden ("skip to commit") instead of satisfied —
@@ -114,7 +126,7 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 
 **Problem:** Without a fixed process, work drifts: features stay half-done, steps get skipped, and the AI runs ahead without input. The human is responsible for the AI's work, so they need checkpoints.
 
-**Solution:** We fix the order of phases (Spec → Tests → Implement → Review → Commit → Report) and build in small increments. Each phase needs explicit human validation before the next one starts. A skip is possible but always logged. Progress is saved to disk, so work resumes across sessions.
+**Solution:** We fix the order of phases (Spec → Build → Review → Commit → Report) and build in small increments. Each phase needs explicit human validation before the next one starts. A skip is possible but always logged. Progress is saved to disk, so work resumes across sessions.
 
 </details>
 
@@ -164,7 +176,7 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 
 **Problem:** A codebase must stay extensible, testable, understandable and modifiable as it grows.
 
-**Solution:** We apply principles that hold in any project: one responsibility per module, DRY, dependency inversion and the rest of SOLID. YAGNI balances them: no abstraction until a second real case exists.
+**Solution:** We apply principles that hold in any project: one responsibility per module, DRY, and Open/Closed, Liskov and Interface Segregation from SOLID. Module interfaces, dependency direction and when an abstraction is warranted belong to Matt Pocock's `codebase-design`, which this skill points to.
 
 </details>
 
@@ -209,7 +221,7 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 
 **Problem:** Without tests, important code becomes scary to change, so we stop changing it and it rots.
 
-**Solution:** New behavior and bug fixes start with a failing test (TDD). Tests check behavior, not internals, so refactoring doesn't break them. They mock only external boundaries, cover failure paths, and run independently.
+**Solution:** This skill complements Matt Pocock's `tdd`, which owns the test loop, what makes a good test, and mocking. It adds Arrange-Act-Assert, failure-path coverage, and tests that run independently.
 
 </details>
 
@@ -268,7 +280,80 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 
 **Problem:** Over the course of a project, decisions are made for reasons. Remembering those reasons, knowing why something was done a certain way and not another, can be difficult later on in a project.
 
-**Solution:** Decisions go into a dated `DECISIONS.md` (context, decision, rejected alternatives, evidence), and the code keeps only a short pointer. Before relying on an old entry, the AI checks that it still matches the code. Outdated entries get a new entry, never an edit.
+**Solution:** Decisions go into an ADR in `docs/adr/` (format from Matt Pocock's `domain-modeling`), and the code keeps only a short pointer. Before relying on an old ADR, the AI checks that it still matches the code. An outdated ADR is superseded by a new one, never edited.
+
+</details>
+
+</details>
+
+<details>
+<summary><b>Matt Pocock's skills (upstream)</b></summary>
+
+From [mattpocock/skills](https://github.com/mattpocock/skills), installed as the
+`mattpocock-skills` plugin and never copied here. They and the `my-tools` skills
+complement each other: neither restates nor contradicts the other
+([ADR 0008](docs/adr/0008-my-tools-complements-pocock-skills.md)).
+
+<details>
+<summary><code>tdd</code></summary>
+
+**Problem:** Tests written all at once, before or after the code, end up testing an imagined design, or simply repeat what the code already does. Tests coupled to internals break on every refactor.
+
+**Solution:** The AI agrees with the user which seams (public boundaries) to test, then works one seam at a time: one failing test, then the minimal code to pass it. Tests go through public interfaces, mock only system boundaries, and never recompute the expected value the way the code does. Refactoring waits for review. `testing` adds Arrange-Act-Assert, failure paths and independent tests on top.
+
+</details>
+
+<details>
+<summary><code>codebase-design</code></summary>
+
+**Problem:** Modules with a large interface and little behind it ("shallow" modules) push complexity onto every caller and are hard to test. Without shared words for this, design discussions stay vague.
+
+**Solution:** A shared vocabulary (module, interface, seam, adapter, depth) and the goal of deep modules: a lot of behavior behind a small interface, tested through that interface. A seam is only introduced when something actually varies across it. `architecture` uses this vocabulary for module interfaces.
+
+</details>
+
+<details>
+<summary><code>domain-modeling</code></summary>
+
+**Problem:** Terms drift (one word, two meanings), and the reasons behind hard-to-reverse decisions get lost or scattered.
+
+**Solution:** Resolved terms go into `GLOSSARY.md` as they're settled. Decisions that are hard to reverse, surprising without context, and the result of a real trade-off become short ADRs in `docs/adr/`. `decision-log` uses its ADR format for every decision record.
+
+</details>
+
+<details>
+<summary><code>code-review</code></summary>
+
+**Problem:** A review that only checks style misses whether the change does what was asked, and one reviewer juggling both checks does each worse.
+
+**Solution:** Two parallel sub-agents review the diff since a fixed point: one against the repo's documented standards plus a baseline of code smells, one against the spec. In feature-workflow's Review phase, the spec is the feature's `NEEDS.md`, and it runs alongside `per-file-review` and `architecture`.
+
+</details>
+
+<details>
+<summary><code>grilling</code></summary>
+
+**Problem:** A plan or need that sounds clear often hides unstated assumptions, which surface only once the work is built wrong.
+
+**Solution:** The AI interviews the user in rounds: each round asks every question whose prerequisites are settled, with a recommended answer, until no branch of the decision tree is left open. It looks up facts itself instead of asking. feature-workflow runs it before any `NEEDS.md` change is validated.
+
+</details>
+
+<details>
+<summary><code>diagnosing-bugs</code></summary>
+
+**Problem:** Debugging by reading code and guessing leads to fixes for the wrong cause, and bugs that come back.
+
+**Solution:** Before any theory, the AI builds a tight feedback loop: one fast, deterministic command that goes red on this exact bug. It then reproduces and minimizes the bug, tests hypotheses against the loop, and fixes it. In feature-workflow's Build phase, that red loop is the first failing test.
+
+</details>
+
+<details>
+<summary><code>writing-for-agents</code></summary>
+
+**Problem:** Skills and `CLAUDE.md` files are read by an agent, not a person. Vague trigger wording, duplicated rules and long files make the agent behave differently from run to run.
+
+**Solution:** Rules for writing agent documents: precise trigger wording, each rule in one place, rarely needed detail moved behind pointers, steps with a clear "done" condition, positive phrasing over prohibitions, and regular pruning. Used whenever a `my-tools` skill is edited.
 
 </details>
 
@@ -284,7 +369,14 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 
 # 2. Install the plugin
 /plugin install my-tools
+
+# 3. Register Matt Pocock's marketplace and install his skills
+/plugin marketplace add mattpocock/skills
+/plugin install mattpocock-skills@mattpocock
 ```
+
+Then, once in each project where feature-workflow's Review phase should use his
+`code-review`, run `/setup-matt-pocock-skills`.
 
 ## Picking up changes after a push
 

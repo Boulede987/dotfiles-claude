@@ -93,7 +93,7 @@ itself a signal — see rule 4 below.
 
 This rule covers the local WHY tied to the exact line. A comment narrating history —
 a rejected alternative, a past experiment, a benchmark — is a different kind of content
-and belongs in a dated log instead; see the `decision-log` skill.
+and belongs in an ADR instead; see the `decision-log` skill.
 
 ### State the Invariant, Don't Name Who Currently Enforces It
 

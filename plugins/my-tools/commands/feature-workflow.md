@@ -1,5 +1,5 @@
 ---
-description: Run the spec-driven, multi-phase feature workflow (Spec → Tests → Implement → Review → Commit → Report) for one feature/increment, resuming from on-disk state.
+description: Run the spec-driven, multi-phase feature workflow (Spec → Build → Review → Commit → Report) for one feature/increment, resuming from on-disk state.
 argument-hint: <feature-slug> [phase-override]
 ---
 
