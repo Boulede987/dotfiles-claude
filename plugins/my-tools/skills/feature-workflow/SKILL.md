@@ -2,7 +2,7 @@
 name: feature-workflow
 description: >
   Run or resume the spec-driven, multi-phase feature-dev workflow for one feature
-  increment: Spec → Tests → Implement → Review → Commit → Report, pausing for
+  increment: Spec → Build → Review → Commit → Report, pausing for
   explicit user validation after every phase. Maintains a persistent Expression of
   Needs and an append-only state log per feature under .claude/workflow/<slug>/ in
   the target project. Trigger via the /feature-workflow command, when the user says
@@ -16,12 +16,12 @@ description: >
 ## 1. Purpose
 
 A multi-session, multi-phase workflow for building one feature as a series of small,
-gated increments. Each increment goes through six phases, in order, with the user
+gated increments. Each increment goes through five phases, in order, with the user
 validating before the workflow advances past Spec and Review in particular — this is
 not a single-shot skill, it is a process with enforced state that survives across
 sessions.
 
-Phase order: **Spec → Tests → Implement → Review → Commit → Report.**
+Phase order: **Spec → Build → Review → Commit → Report.**
 
 ## 2. Artifact Root
 
@@ -112,9 +112,8 @@ phase/increment.
 | Phase | Skill(s) invoked | Gate to advance | STATE.md records |
 |---|---|---|---|
 | **Spec** | `design-preview` (always), `algorithm-diagrams` (only if its own conditions are met), `architecture`, `type-safety` | If `NEEDS.md` was created/amended for this increment, the user validates that change **first** — the design is never drafted against an unvalidated need. Then: user explicitly validates the proposed class diagram + file list (and activity diagram, if one was drafted) | Any `NEEDS.md` addition/change; diagram path(s), file list; "awaiting validation" until confirmed |
-| **Tests** | `testing` | Tests are written and **failing** (red), before any implementation code exists | Test files added, expected-failure state noted |
-| **Implement** | `function-design`, `naming-conventions`, `type-safety`, `error-handling`, `decision-log`, `python-conventions` (as applicable) | The tests from the previous phase now **pass** (green) | Decisions made = pointer to the target project's ADR(s) in `docs/adr/` only, never the rationale itself |
-| **Review** | `per-file-review` (file-local) and `architecture` (cross-file) run first | **The user is the actual gate** — automated findings inform the review, they never substitute for it | Findings surfaced, user's resolution/acceptance of each |
+| **Build** | `mattpocock-skills:tdd` with `testing`'s additions drive the loop; `mattpocock-skills:diagnosing-bugs` first when the increment fixes a bug (its red-capable repro is the first test); `function-design`, `naming-conventions`, `type-safety`, `error-handling`, `decision-log`, `python-conventions` (as applicable) while writing code | The seams under test are agreed with the user first; then, one seam at a time, a failing test (red) followed by the minimal code that passes it (green). Gate: **every agreed seam has a passing test** | Agreed seams; test and code files per seam; decisions made = pointer to the target project's ADR(s) in `docs/adr/` only, never the rationale itself |
+| **Review** | `per-file-review` (file-local) and `architecture` (cross-file) run first. Refactoring happens here, not in Build | **The user is the actual gate** — automated findings inform the review, they never substitute for it | Findings surfaced, user's resolution/acceptance of each |
 | **Commit** | `git-workflow`'s existing branch/commit rules; `generate-docs` regenerates `design-preview`'s diagram(s) from the real, now-implemented code | Commit(s) made referencing the increment; diagram(s) now reflect as-built truth; any `design-preview` preview-copy file is deleted once regeneration lands | Commit hash(es) and message |
 | **Report** | `session-handoff`'s section format, persisted here instead of chat-only | `STATE.md` entry written; user validates before the next increment is allowed to open | Full entry including `CLAUDE.md update suggestions` |
 
@@ -134,7 +133,7 @@ again.
 
 ## 9. Relationship to `decision-log`
 
-Historical/rationale narrative discovered or written during `Implement` still goes
+Historical/rationale narrative discovered or written during `Build` still goes
 through the `decision-log` skill into an ADR in the target project's `docs/adr/`. This
 skill's `STATE.md` never duplicates that content — its "Decisions made" field is a
 pointer to the ADR only.
