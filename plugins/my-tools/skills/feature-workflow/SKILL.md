@@ -117,7 +117,7 @@ phase/increment.
 | **Build** | `mattpocock-skills:tdd` with `testing`'s additions drive the loop; `mattpocock-skills:diagnosing-bugs` first when the increment fixes a bug (its red-capable repro is the first test); `function-design`, `naming-conventions`, `type-safety`, `error-handling`, `decision-log`, `python-conventions` (as applicable) while writing code | The seams under test are agreed with the user first; then, one seam at a time, a failing test (red) followed by the minimal code that passes it (green). Gate: **every agreed seam has a passing test** | Agreed seams; test and code files per seam; decisions made = pointer to the target project's ADR(s) in `docs/adr/` only, never the rationale itself |
 | **Review** | `per-file-review` (file-local), `architecture` (cross-file), and `mattpocock-skills:code-review` against the commit the increment started from, with `NEEDS.md` as the spec, run first. `code-review` needs `/setup-matt-pocock-skills` run once in the target project; if it hasn't been, say so and run the other two. Refactoring happens here, not in Build | **The user is the actual gate** — automated findings inform the review, they never substitute for it | Findings surfaced, user's resolution/acceptance of each |
 | **Commit** | `git-workflow`'s existing branch/commit rules; `generate-docs` regenerates `design-preview`'s diagram(s) from the real, now-implemented code | Commit(s) made referencing the increment; diagram(s) now reflect as-built truth; any `design-preview` preview-copy file is deleted once regeneration lands | Commit hash(es) and message |
-| **Report** | `session-handoff`'s section format, persisted here instead of chat-only | `STATE.md` entry written; user validates before the next increment is allowed to open | Full entry including `CLAUDE.md update suggestions` |
+| **Report** | `session-handoff`'s section format, persisted here instead of chat-only | `STATE.md` entry written; user validates it; then the increment's **last commit**, `chore(workflow): close <increment>`, adds `STATE.md` (plus `NEEDS.md` if it changed this increment) and is pushed if the Commit phase's commits were. The next increment opens only after that commit | Full entry including `CLAUDE.md update suggestions` |
 
 ## 7. Gate / Override Protocol
 
@@ -129,7 +129,8 @@ so the skip is visible in the history, not silently absorbed into the normal flo
 
 ## 8. Increment Loop
 
-Once `Report`'s gate is met: **pause.** Do not auto-start the next increment's Spec
+Once `Report`'s gate is met — including its closing commit, so `.claude/workflow/<slug>/`
+has no uncommitted changes — **pause.** Do not auto-start the next increment's Spec
 phase. The user decides when the next increment begins, by invoking the workflow
 again.
 

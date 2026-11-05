@@ -100,7 +100,9 @@ generate-docs overwrites the draft diagram"]
     Report --> GateReport{"User validates
 before next increment?"}
     GateReport -- no --> Report
-    GateReport -- yes --> Pause(["Pause — next increment
+    GateReport -- yes --> CloseCommit["Close — commit STATE.md (+ NEEDS.md)
+as the increment's last commit; push if Commit pushed"]
+    CloseCommit --> Pause(["Pause — next increment
 starts a fresh Spec"])
 ```
 
