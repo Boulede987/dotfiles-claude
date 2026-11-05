@@ -69,8 +69,8 @@ a design against an unvalidated need is wasted work if the need turns out wrong.
 
 ## 4. Per-Increment Log (`STATE.md`)
 
-Append-only, newest entry at top — same convention as the `decision-log` skill's
-`DECISIONS.md`. Every phase appends exactly one entry, never edits a past one:
+Append-only, newest entry at top. Every phase appends exactly one entry, never edits a
+past one:
 
 ```markdown
 ## <date> <time> — <story/increment> — Phase: <phase name>
@@ -81,7 +81,7 @@ Append-only, newest entry at top — same convention as the `decision-log` skill
 <files touched this phase, one sentence on why each>
 
 **Decisions made:**
-<see DECISIONS.md <date>, or "none" — never the rationale itself, only a pointer>
+<see docs/adr/NNNN-slug.md, or "none" — never the rationale itself, only a pointer>
 
 **State of known issues:**
 <open or resolved>
@@ -113,7 +113,7 @@ phase/increment.
 |---|---|---|---|
 | **Spec** | `design-preview` (always), `algorithm-diagrams` (only if its own conditions are met), `architecture`, `type-safety` | If `NEEDS.md` was created/amended for this increment, the user validates that change **first** — the design is never drafted against an unvalidated need. Then: user explicitly validates the proposed class diagram + file list (and activity diagram, if one was drafted) | Any `NEEDS.md` addition/change; diagram path(s), file list; "awaiting validation" until confirmed |
 | **Tests** | `testing` | Tests are written and **failing** (red), before any implementation code exists | Test files added, expected-failure state noted |
-| **Implement** | `function-design`, `naming-conventions`, `type-safety`, `error-handling`, `decision-log`, `python-conventions` (as applicable) | The tests from the previous phase now **pass** (green) | Decisions made = pointer into the target project's `DECISIONS.md` only, never the rationale itself |
+| **Implement** | `function-design`, `naming-conventions`, `type-safety`, `error-handling`, `decision-log`, `python-conventions` (as applicable) | The tests from the previous phase now **pass** (green) | Decisions made = pointer to the target project's ADR(s) in `docs/adr/` only, never the rationale itself |
 | **Review** | `per-file-review` (file-local) and `architecture` (cross-file) run first | **The user is the actual gate** — automated findings inform the review, they never substitute for it | Findings surfaced, user's resolution/acceptance of each |
 | **Commit** | `git-workflow`'s existing branch/commit rules; `generate-docs` regenerates `design-preview`'s diagram(s) from the real, now-implemented code | Commit(s) made referencing the increment; diagram(s) now reflect as-built truth; any `design-preview` preview-copy file is deleted once regeneration lands | Commit hash(es) and message |
 | **Report** | `session-handoff`'s section format, persisted here instead of chat-only | `STATE.md` entry written; user validates before the next increment is allowed to open | Full entry including `CLAUDE.md update suggestions` |
@@ -135,9 +135,9 @@ again.
 ## 9. Relationship to `decision-log`
 
 Historical/rationale narrative discovered or written during `Implement` still goes
-through the `decision-log` skill into the target project's `DECISIONS.md`. This
+through the `decision-log` skill into an ADR in the target project's `docs/adr/`. This
 skill's `STATE.md` never duplicates that content — its "Decisions made" field is a
-dated pointer only.
+pointer to the ADR only.
 
 ## 10. Relationship to `design-preview`, `algorithm-diagrams`, `generate-docs`
 

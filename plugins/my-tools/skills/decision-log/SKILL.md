@@ -1,16 +1,16 @@
 ---
 name: decision-log
 description: >
-  Move historical/rationale narrative out of code comments and into a dated DECISIONS.md
-  log, leaving only a short pointer inline. Trigger when about to write a comment
+  Move historical/rationale narrative out of code comments and into an ADR under
+  docs/adr/, leaving only a short pointer inline. Trigger when about to write a comment
   explaining a rejected alternative, a past experiment, a measured benchmark, or "we
   tried X before Y" history — or when reviewing existing code with large narrative
-  comment blocks. Also trigger before relying on a past DECISIONS.md entry to make a new
-  decision (e.g. "don't retry this, already rejected") — verify the entry still matches
-  current code before trusting it.
+  comment blocks. Also trigger before relying on a past ADR to make a new decision
+  (e.g. "don't retry this, already rejected") — verify it still matches current code
+  before trusting it.
 ---
 
-# Decision Log — Keep History Out of the Code, Dated and Verifiable
+# Decision Log — Keep History Out of the Code, in ADRs, Verifiable
 
 ## Why This Exists
 
@@ -18,8 +18,15 @@ Historical narrative comments ("we tried X, rejected it, here's the measured num
 are valuable — they stop future work from re-litigating settled decisions — but they are
 a bad fit for inline placement: they accumulate forever at one spot, carry no visual
 signal that they might be outdated, and bulk up files that should read as current logic.
-Moving them to a dated log instead of deleting them keeps the value; dating them signals
-"this may be stale" the way an undated inline comment never does.
+Moving them to an ADR instead of deleting them keeps the value.
+
+**ADRs are owned by `mattpocock-skills:domain-modeling`.** Its `ADR-FORMAT.md` is the
+single source of truth for location (`docs/adr/`), numbering (`0001-slug.md`), the
+template, and the bar for when a decision deserves an ADR. Call the Skill tool with
+`domain-modeling` for its ADR format and the bar for writing one only, not its glossary
+work; this skill only adds the rules below, which it
+doesn't cover: what moves out of comments, the pointer, verifying before relying, and
+migrating existing comments.
 
 This does not replace the `naming-conventions` skill's comment rule (comments explain
 *why*, not *what*) — a short, local WHY tied to the exact line it explains still belongs
@@ -27,18 +34,22 @@ inline. Only historical/rationale narrative moves out.
 
 ---
 
-## 1. What Moves to the Log, What Stays Inline
+## 1. What Moves to an ADR, What Stays Inline
 
-**Moves to `DECISIONS.md`:** anything about the past — a rejected alternative, an
-experiment that didn't work, a benchmark number, why approach Y replaced approach X.
-This content is narrative, not a property of the current line of code.
+**Moves to an ADR:** anything about the past — a rejected alternative, an experiment
+that didn't work, a benchmark number, why approach Y replaced approach X. This content
+is narrative, not a property of the current line of code.
 
 **Stays inline:** an immediate, local WHY tied to the exact line — an invariant, a
 gotcha, a workaround for a specific bug, something that would surprise a reader of that
 line right now. This content describes the current code, not its history.
 
+**Neither:** narrative that fails `domain-modeling`'s ADR bar (hard to reverse,
+surprising without context, a real trade-off). If nobody would re-propose the rejected
+option, there's nothing to protect — drop the history and keep at most the inline WHY.
+
 ```python
-# Bad — historical narrative bloating the code, no date, easy to leave stale
+# Bad — historical narrative bloating the code, easy to leave stale
 def calculate_price(order):
     # We used to compute this with a flat percentage discount, but that broke for
     # bulk orders over 100 units where the marginal cost drops. Tried a tiered lookup
@@ -47,76 +58,50 @@ def calculate_price(order):
     # measuring it against 3 months of order data (avg error 0.4% vs 6% for flat rate).
     return order.base_price * (1 - marginal_discount_curve(order.quantity))
 
-# Good — inline keeps only the current-code WHY; history lives in DECISIONS.md
+# Good — inline keeps only a pointer; history lives in the ADR
 def calculate_price(order):
-    # see DECISIONS.md 2026-06-02
+    # see docs/adr/0003-marginal-discount-pricing.md
     return order.base_price * (1 - marginal_discount_curve(order.quantity))
 ```
 
----
-
-## 2. `DECISIONS.md` Format
-
-One file at the project root. Newest entries at the top. Each entry:
-
-```markdown
-## 2026-06-02 — Pricing uses a marginal-discount curve, not flat percentage or tiers
-
-**Context:** Flat percentage discount broke for bulk orders over 100 units, where
-marginal cost drops.
-
-**Decision:** `marginal_discount_curve(quantity)` in `pricing.py`.
-
-**Alternatives considered:**
-- Tiered lookup table (`old_pricing.py`) — rejected: sales changed tiers weekly,
-  required a deploy each time.
-
-**Evidence:** Measured against 3 months of order data — avg error 0.4% vs 6% for flat
-rate.
-```
-
-Keep the `**Alternatives considered**` section even when there's only one rejected
-alternative — that's usually the exact thing that stops someone from re-proposing it
-later.
+When the narrative includes a rejected alternative or a measurement, keep them in the
+ADR's optional **Considered Options** section — the rejected alternative is usually the
+exact thing that stops someone from re-proposing it later.
 
 ---
 
-## 3. The Pointer Comment
+## 2. The Pointer Comment
 
-Leave a one-line pointer at the site the decision affects, dated so it's a direct anchor
-into the log:
+Leave a one-line pointer at the site the decision affects, naming the ADR file:
 
 ```python
-# see DECISIONS.md 2026-06-02
+# see docs/adr/0003-marginal-discount-pricing.md
 ```
 
-Don't restate the decision inline — that recreates the duplication this skill exists to
-remove. The pointer's only job is discoverability.
+The pointer's only job is discoverability; the decision itself lives in the ADR alone.
 
 ---
 
-## 4. Verify Before Relying on a Past Entry
+## 3. Verify Before Relying on a Past ADR
 
-An entry in `DECISIONS.md` is a claim about the past, not a guarantee about the present.
-Before using one to justify a new decision — "don't retry the tiered lookup, it was
-already rejected" — check that the entry still matches current code if the check is
-cheap (the file/function it names still exists and does what the entry says). This
-mirrors the same judgment call as trusting any comment: verify when the claim is
-load-bearing for what you're about to do, not as a blanket sweep of the whole log every
-session.
+An ADR is a claim about the past, not a guarantee about the present. Before using one to
+justify a new decision — "don't retry the tiered lookup, it was already rejected" — check
+that it still matches current code if the check is cheap (the file/function it names
+still exists and does what the ADR says). Verify when the claim is load-bearing for what
+you're about to do, not as a blanket sweep of every ADR each session.
 
-If an entry no longer matches (the rejected approach was later reintroduced for a
-different reason, the measured numbers were superseded), add a new dated entry noting
-the change rather than editing the old one — the log is a history, not a single source
-of current truth.
+If an ADR no longer matches (the rejected approach was later reintroduced for a
+different reason, the measured numbers were superseded), write a new ADR and mark the
+old one `superseded by ADR-NNNN` in its Status — the ADRs are a history, not a single
+source of current truth.
 
 ---
 
-## 5. Migrating Existing Comments
+## 4. Migrating Existing Comments
 
 When reviewing code with a large narrative comment block (the trigger for this skill
-applying retroactively): extract the narrative into a new `DECISIONS.md` entry dated to
-the best information available (git blame date if the original date is unknown), replace
-the inline comment with a pointer, and flag the migration to the user rather than doing
-it silently — moving history out of code is a content change worth a quick confirmation,
-even though the code's behavior doesn't change.
+applying retroactively): extract the narrative into a new ADR, replace the inline
+comment with a pointer, and flag the migration to the user before doing it — moving
+history out of code is a content change worth a quick confirmation, even though the
+code's behavior doesn't change. A project with an existing `DECISIONS.md` gets the same
+treatment: one ADR per entry, then remove the file once the user confirms.

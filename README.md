@@ -268,7 +268,7 @@ All live in `plugins/my-tools/skills/<name>/SKILL.md`.
 
 **Problem:** Over the course of a project, decisions are made for reasons. Remembering those reasons, knowing why something was done a certain way and not another, can be difficult later on in a project.
 
-**Solution:** Decisions go into a dated `DECISIONS.md` (context, decision, rejected alternatives, evidence), and the code keeps only a short pointer. Before relying on an old entry, the AI checks that it still matches the code. Outdated entries get a new entry, never an edit.
+**Solution:** Decisions go into an ADR in `docs/adr/` (format from Matt Pocock's `domain-modeling`), and the code keeps only a short pointer. Before relying on an old ADR, the AI checks that it still matches the code. An outdated ADR is superseded by a new one, never edited.
 
 </details>
 

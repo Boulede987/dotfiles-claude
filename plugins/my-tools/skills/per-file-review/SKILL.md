@@ -29,7 +29,7 @@ That's most of the `coding` skill's rule set:
 |---|---|---|
 | `function-design` | Yes | Function length, nesting, extraction — all visible in one file |
 | `naming-conventions` | Yes | Magic numbers, constants, comments, primitive obsession, the invariant-not-owner rule |
-| `decision-log` | Yes | Whether a comment is narrative-history that should move to `DECISIONS.md` |
+| `decision-log` | Yes | Whether a comment is narrative-history that should move to an ADR |
 | `python-conventions` | Yes | `__main__` guard, encoding — properties of the one file |
 | `type-safety` | Yes | Signature typing is visible without the caller |
 | `error-handling` | Yes | Swallowed exceptions, ambiguous `None` returns — visible in the function itself |
