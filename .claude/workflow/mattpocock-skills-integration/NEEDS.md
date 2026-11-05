@@ -20,3 +20,4 @@ in sessions. What's missing is how they fit together with `my-tools`.
 | Every overlap between a Pocock skill and a `my-tools` skill has a decided rule (use mine, use theirs, or combine) | One ADR in `docs/adr/` per overlapping pair (e.g. `testing`/`tdd`, `decision-log`/`domain-modeling`, `per-file-review`/`code-review`, `session-handoff`/`handoff`) | met |
 | `feature-workflow` invokes the relevant Pocock skills at the right phases | Phase table in `feature-workflow/SKILL.md` names each Pocock skill used and when | met |
 | The README documents which Pocock skills are used and why | README has an entry per adopted Pocock skill, using the Problem/Solution pattern | not started |
+| Each increment is self-contained in git: its accepted Report and its state land in its own last commit | After any Report is approved, `git status` shows no changes under `.claude/workflow/<slug>/` | met |

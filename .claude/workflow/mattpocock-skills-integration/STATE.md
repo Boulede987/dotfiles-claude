@@ -1,3 +1,85 @@
+## 2026-11-05 — Increment 3: state lands in the increment's last commit — Phase: Report
+
+**Phase & Gate:** Increment 3 complete; awaiting user validation, then the closing
+`chore(workflow): close increment 3` commit (first increment closed under its own rule).
+
+**What changed:**
+- `feature-workflow` Report phase now ends with a state commit; README flowchart updated.
+  Requirement 5 of NEEDS.md met.
+
+**Decisions made:** none
+
+**State of known issues:**
+- Open: branch `mattpocock-skills-integration` pushed, not merged; installed plugin still runs `main`'s old workflow until merge + `/plugin marketplace update`.
+- Open: `/setup-matt-pocock-skills` not yet run in any project.
+- Open: `architecture` may be too large — candidate for its own feature.
+
+**Next steps:**
+1. Increment 4: README Setup installs `mattpocock-skills`; README Problem/Solution entries for adopted Pocock skills; `coding` index lists them.
+
+**CLAUDE.md update suggestions:** none
+
+## 2026-11-05 — Increment 3: state lands in the increment's last commit — Phase: Commit
+
+**Phase & Gate:** User signed off Review. Commit made and pushed. Gate met.
+
+**What changed:**
+- 9999b64 feat(skills): close each feature-workflow increment with a state commit
+
+**Decisions made:** none
+
+**State of known issues:** none new
+
+**Next steps:**
+1. Report phase.
+
+## 2026-11-05 — Increment 3: state lands in the increment's last commit — Phase: Review
+
+**Phase & Gate:** Self-review: Report row and §8 agree (pause only after the closing
+commit); README flowchart matches; no other phase text affected. Gate NOT met —
+awaiting user sign-off.
+
+**What changed:** none (review only)
+
+**Decisions made:** none
+
+**State of known issues:** none new
+
+**Next steps:**
+1. User signs off; then Commit.
+
+## 2026-11-05 — Increment 3: state lands in the increment's last commit — Phase: Build — OVERRIDDEN BY USER
+
+**Phase & Gate:** Gate (every agreed seam has a passing test) not met: markdown-only
+change, nothing to test. Validated file list implemented.
+
+**What changed:**
+- `plugins/my-tools/skills/feature-workflow/SKILL.md` — Report row gate ends with the `chore(workflow): close <increment>` commit; §8 pauses only after it.
+- `README.md` — flowchart gains the Close node before Pause.
+
+**Decisions made:** none
+
+**State of known issues:** none new
+
+**Next steps:**
+1. Review phase.
+
+## 2026-11-05 — Increment 3: state lands in the increment's last commit — Phase: Spec
+
+**Phase & Gate:** Grilling round done (Q1–Q5 accepted). NEEDS.md amended with a new
+requirement row — validated by the user's answer to Q3. Increment 2's leftover state
+committed (0dfea20) per Q4. Diagram = README mermaid change. Gate NOT met — awaiting
+validation of the mermaid change + file list.
+
+**What changed:** `NEEDS.md` — new requirement row (state in last commit).
+
+**Decisions made:** none (no ADR — fails the bar, per Q5)
+
+**State of known issues:** none new
+
+**Next steps:**
+1. User validates the mermaid change + file list.
+
 ## 2026-11-05 — Increment 2: feature-workflow uses Pocock skills — Phase: Report
 
 **Phase & Gate:** Increment 2 complete; awaiting user validation before increment 3 opens.
