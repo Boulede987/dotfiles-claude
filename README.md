@@ -16,6 +16,7 @@ dotfiles-claude/
         │   └── plugin.json     # Plugin metadata (name, description, author)
         ├── skills/             # Skill directories — each a SKILL.md, auto-triggered by description match
         ├── commands/           # Deterministic slash commands — each a <name>.md
+        ├── hooks/              # hooks.json + files it injects — always-on behavior
         └── agents/             # Agent definitions — custom Claude agent types
 ```
 
@@ -56,6 +57,16 @@ Each file defines a custom agent type available in Claude Code sessions. Drop a 
 
 Each `<name>.md` file is a deterministic slash command (`/name`), invoked by exact
 name rather than fuzzy description matching. Currently: `/feature-workflow`.
+
+</details>
+
+<details>
+<summary><b>hooks/</b> — always-on behavior</summary>
+
+`hooks/hooks.json` is picked up by convention. Currently one `SessionStart` hook injects
+`hooks/tool-voice.md` into every session: Claude talks as a tool, never as a teammate
+(no "we", no emotional or social language). See
+[ADR 0009](docs/adr/0009-tool-voice-via-sessionstart-hook.md).
 
 </details>
 
