@@ -63,10 +63,12 @@ name rather than fuzzy description matching. Currently: `/feature-workflow`.
 <details>
 <summary><b>hooks/</b> — always-on behavior</summary>
 
-`hooks/hooks.json` is picked up by convention. Currently one `SessionStart` hook injects
-`hooks/tool-voice.md` into every session: Claude talks as a tool, never as a teammate
-(no "we", no emotional or social language). See
-[ADR 0009](docs/adr/0009-tool-voice-via-sessionstart-hook.md).
+`hooks/hooks.json` is picked up by convention. Currently it enforces the tool voice:
+Claude talks as a tool, never as a teammate (no "we", no emotional or social language).
+A `SessionStart` hook injects the full rule, `hooks/tool-voice.md`, once per session; a
+`UserPromptSubmit` hook injects the one-line `hooks/tool-voice-reminder.md` on every
+message. See [ADR 0009](docs/adr/0009-tool-voice-via-sessionstart-hook.md) and
+[ADR 0010](docs/adr/0010-tool-voice-reminder-on-every-prompt.md).
 
 </details>
 
