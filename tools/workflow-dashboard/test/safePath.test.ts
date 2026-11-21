@@ -2,8 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
-import { resolveExistingInside, resolveInside } from "../src/safePath.ts";
+import { basename, join, resolve } from "node:path";
+import { resolveExistingInside, resolveExistingPath, resolveInside } from "../src/safePath.ts";
 
 const ROOT = resolve("/projects/demo");
 
@@ -115,3 +115,84 @@ test("a missing file is reported as not found", () => {
     rmSync(project, { recursive: true, force: true });
   }
 });
+
+/** Runs `body` with <base>/project holding a junction "escape" -> <base>/outside/secret.txt. */
+function withEscapeFixture(body: (project: string) => void): void {
+  const base = mkdtempSync(join(tmpdir(), "wd-plain-escape-"));
+  try {
+    const project = join(base, "project");
+    const outside = join(base, "outside");
+    mkdirSync(project);
+    mkdirSync(outside);
+    writeFileSync(join(outside, "secret.txt"), "secret");
+    symlinkSync(outside, join(project, "escape"), "junction");
+    body(project);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+test("a plain project-relative path is read literally, without percent-decoding", () => {
+  // Arrange: a file literally named "%41.md" next to one named "A.md"
+  const project = mkdtempSync(join(tmpdir(), "wd-literal-"));
+  try {
+    writeFileSync(join(project, "%41.md"), "literal");
+    writeFileSync(join(project, "A.md"), "decoded");
+
+    // Act
+    const result = resolveExistingPath(project, "%41.md");
+
+    // Assert
+    assert.ok(result.ok, "expected the literal file to resolve");
+    assert.equal(basename(result.path), "%41.md");
+  } finally {
+    rmSync(project, { recursive: true, force: true });
+  }
+});
+
+test("a plain path escaping the project by text is refused", () => {
+  withEscapeFixture((project) => {
+    // Act
+    const result = resolveExistingPath(project, "../outside/secret.txt");
+
+    // Assert
+    assert.deepEqual(result, { ok: false, reason: "outside the project" });
+  });
+});
+
+test("a plain path escaping the project through a link is refused", () => {
+  withEscapeFixture((project) => {
+    // Act
+    const result = resolveExistingPath(project, "escape/secret.txt");
+
+    // Assert
+    assert.deepEqual(result, { ok: false, reason: "outside the project" });
+  });
+});
+
+test("a plain path to a missing file is not found", () => {
+  withEscapeFixture((project) => {
+    // Act
+    const result = resolveExistingPath(project, "missing.md");
+
+    // Assert
+    assert.deepEqual(result, { ok: false, reason: "not found" });
+  });
+});
+
+for (const [label, path, reason] of [
+  ["absolute posix path", "/etc/passwd", "outside the project"],
+  ["windows drive path", "C:/Windows/win.ini", "outside the project"],
+  ["empty path", "", "not a file path"],
+  ["NUL byte", "a\0.md", "not a file path"],
+] as const) {
+  test(`a plain path is refused: ${label}`, () => {
+    withEscapeFixture((project) => {
+      // Act
+      const result = resolveExistingPath(project, path);
+
+      // Assert
+      assert.deepEqual(result, { ok: false, reason });
+    });
+  });
+}
