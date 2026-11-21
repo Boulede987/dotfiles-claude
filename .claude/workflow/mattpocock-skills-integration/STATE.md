@@ -1,3 +1,27 @@
+## 2026-11-21 — Increment 5: remove overlaps — Phase: Report
+
+**Status:** validated
+
+**Pending documents:** none
+
+**Phase & Gate:** User had validated the increment 5 Report entry; closing commit b3729ee
+made and the branch merged into `main` (c4331fd). This entry records that validation,
+which the entry format of the time did not record. Increment 5 closed; workflow paused.
+
+**What changed:** none (record only)
+
+**Decisions made:** none new
+
+**State of known issues:**
+- Resolved: branch `mattpocock-skills-integration` not merged into `main` (merged in c4331fd).
+- Open: `/setup-matt-pocock-skills` not yet run in any project.
+
+**Next steps:**
+1. None; the user starts any next increment.
+
+**CLAUDE.md update suggestions:**
+- none
+
 ## 2026-11-05 — Increment 5: remove overlaps — Phase: Report
 
 **Phase & Gate:** Increment 5 complete; awaiting user validation, then the closing commit.
