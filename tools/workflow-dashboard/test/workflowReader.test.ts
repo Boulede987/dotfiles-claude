@@ -88,7 +88,7 @@ test("a project without .claude/workflow has no features", () => {
     const dashboard = readWorkflow(root);
 
     // Assert
-    assert.deepEqual(dashboard, { projectRoot: root, features: [], listingError: undefined });
+    assert.deepEqual(dashboard, { projectRoot: root, features: [], listingError: undefined, toValidate: [] });
   });
 });
 
@@ -142,5 +142,51 @@ test("a workflow path that cannot be listed becomes a dashboard listing error", 
     // Assert
     assert.deepEqual(dashboard.features, []);
     assert.equal(dashboard.listingError, `cannot list ${join(".claude", "workflow")}: ENOTDIR`);
+  });
+});
+
+test("only features whose newest entry awaits validation are to validate, with their documents read", () => {
+  withTempProject("wd-to-validate-", (root) => {
+    // Arrange
+    const awaiting = [
+      "## 2026-11-21 — Increment 2 — Phase: Spec",
+      "",
+      "**Status:** awaiting-validation",
+      "",
+      "**Pending documents:** docs/design.md, docs/missing.svg, docs/folder.md",
+      "",
+      "## 2026-11-20 — Increment 1 — Phase: Report",
+      "",
+      "**Status:** validated",
+      "",
+    ].join("\n");
+    const olderAwaiting = [
+      "## 2026-11-21 — Increment 1 — Phase: Build",
+      "",
+      "**Status:** validated",
+      "",
+      "## 2026-11-20 — Increment 1 — Phase: Spec",
+      "",
+      "**Status:** awaiting-validation",
+      "",
+      "**Pending documents:** docs/design.md",
+      "",
+    ].join("\n");
+    writeFeatureFile(root, "alpha", "STATE.md", awaiting);
+    writeFeatureFile(root, "beta", "STATE.md", olderAwaiting);
+    mkdirSync(join(root, "docs", "folder.md"), { recursive: true });
+    writeFileSync(join(root, "docs", "design.md"), "# Design\n");
+
+    // Act
+    const { toValidate } = readWorkflow(root);
+
+    // Assert
+    assert.deepEqual(toValidate.map((item) => item.feature.slug), ["alpha"]);
+    assert.equal(toValidate[0].entry.increment, "Increment 2");
+    assert.deepEqual(toValidate[0].documents, [
+      { path: "docs/design.md", view: { kind: "text", text: "# Design\n" } },
+      { path: "docs/missing.svg", view: { kind: "unshowable", reason: "not found" } },
+      { path: "docs/folder.md", view: { kind: "unshowable", reason: "not found" } },
+    ]);
   });
 });

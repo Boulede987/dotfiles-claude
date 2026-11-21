@@ -1,6 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, sep } from "node:path";
-import type { Dashboard, Feature, NeedsResult, ParseResult } from "./model.ts";
+import { readDocument } from "./documentReader.ts";
+import type { Dashboard, Feature, NeedsResult, ParseResult, ValidationItem } from "./model.ts";
+import { newestEntry, pendingValidations } from "./model.ts";
 import { parseNeeds } from "./needsParser.ts";
 import { parseState } from "./stateParser.ts";
 
@@ -12,13 +14,27 @@ export function workflowRoot(projectRoot: string): string {
   return join(projectRoot, WORKFLOW_DIR);
 }
 
-/** Reads every feature under `<projectRoot>/.claude/workflow/`. Read-only; never throws on file-system errors. */
+/**
+ * Reads every feature under `<projectRoot>/.claude/workflow/`, and the documents of
+ * those awaiting validation. Read-only; never throws on file-system errors.
+ */
 export function readWorkflow(projectRoot: string): Dashboard {
   const root = workflowRoot(projectRoot);
   const slugs = findFeatureSlugs(root);
-  if (!slugs.ok) return { projectRoot, features: [], listingError: slugs.error };
+  if (!slugs.ok) return { projectRoot, features: [], listingError: slugs.error, toValidate: [] };
   const features = slugs.value.sort().map((slug) => readFeature(root, slug));
-  return { projectRoot, features, listingError: undefined };
+  const toValidate = readToValidate(projectRoot, pendingValidations(features));
+  return { projectRoot, features, listingError: undefined, toValidate };
+}
+
+function readToValidate(projectRoot: string, pending: Feature[]): ValidationItem[] {
+  // A pending feature always has a newest entry; flatMap only narrows the type.
+  return pending.flatMap((feature) => {
+    const entry = newestEntry(feature);
+    if (entry === undefined) return [];
+    const documents = entry.pendingDocuments.map((path) => readDocument(projectRoot, path));
+    return [{ feature, entry, documents }];
+  });
 }
 
 function findFeatureSlugs(root: string): ParseResult<string[]> {

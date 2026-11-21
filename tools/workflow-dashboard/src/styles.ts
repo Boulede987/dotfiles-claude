@@ -27,7 +27,26 @@ h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: v
 h3 { font-size: 16px; margin: 0 0 6px; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
 h4 { font-size: 14px; margin: 12px 0 4px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; }
-.pending-card { border-left: 4px solid var(--awaiting); }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--border); margin: 8px 0 16px; }
+.tab { padding: 6px 12px; border: 1px solid transparent; border-bottom: none; border-radius: 6px 6px 0 0;
+  color: var(--muted); text-decoration: none; margin-bottom: -1px; overflow-wrap: anywhere; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--text); background: var(--surface); border-color: var(--border); font-weight: 500; }
+.marker { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--awaiting);
+  margin-left: 6px; vertical-align: middle; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.validation-item { border-left: 4px solid var(--awaiting); }
+.document { border-top: 1px solid var(--border); margin-top: 8px; }
+.document summary { overflow-wrap: anywhere; }
+.document img { display: block; max-width: 100%; margin: 6px 0; background: #fff;
+  border: 1px solid var(--border); border-radius: 4px; }
+.document-text { white-space: pre-wrap; overflow-wrap: anywhere; font: 13px/1.45 ui-monospace, monospace;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 8px 10px; margin: 6px 0;
+  max-height: 70vh; overflow-y: auto; }
+.document-line { margin: 6px 0; overflow-wrap: anywhere; }
+.document-path { font-family: ui-monospace, monospace; font-size: 13px; }
+.reason { font-size: 12px; padding: 1px 8px; border-radius: 999px; background: var(--override-bg); color: var(--override); }
 .phase { font-weight: 400; color: var(--muted); font-size: 14px; }
 .badge { font-size: 12px; padding: 1px 8px; border-radius: 999px; font-weight: 500; }
 .badge.status-awaiting-validation { background: var(--awaiting-bg); color: var(--awaiting); }
@@ -51,8 +70,6 @@ summary { cursor: pointer; color: var(--muted); margin: 6px 0; }
 code { font-family: ui-monospace, monospace; font-size: 12px; background: var(--unknown-bg); padding: 0 4px; border-radius: 4px; }
 .documents { margin: 6px 0 0; padding-left: 18px; }
 .documents li { margin: 2px 0; overflow-wrap: anywhere; }
-.documents img { display: block; max-width: 100%; max-height: 360px; margin: 6px 0; background: #fff;
-  border: 1px solid var(--border); border-radius: 4px; }
 a { color: var(--accent); }
 table { border-collapse: collapse; width: 100%; font-size: 13px; display: block; overflow-x: auto; }
 th, td { text-align: left; border-bottom: 1px solid var(--border); padding: 4px 8px; vertical-align: top; }

@@ -1,9 +1,11 @@
 # workflow-dashboard
 
 Read-only, live dashboard for one project's `feature-workflow` state
-(`.claude/workflow/**/STATE.md` and `NEEDS.md`). It shows, per feature, the current
-phase, the next step, the timeline of phase entries, and the requirements table, plus
-a top panel of documents awaiting validation. Why it is standalone:
+(`.claude/workflow/**/STATE.md` and `NEEDS.md`). The first tab, "To validate", shows
+every document awaiting validation in place (images inline, text files as plain text).
+Each ongoing feature has its own tab with the current phase, the next step, the timeline
+of phase entries, and the requirements table; closed features are in the last tab.
+`#tab=<slug>` in the URL selects a tab. Why it is standalone:
 [ADR 0011](../../docs/adr/0011-workflow-dashboard-standalone-tool.md).
 
 ## Install (once per machine)

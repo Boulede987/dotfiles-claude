@@ -34,23 +34,64 @@ export type Feature = {
   needs: NeedsResult;
 };
 
+export type UnshowableReason = "too large" | "not found" | "unreadable" | "outside the project";
+
+/** How a pending document can be shown in the page. */
+export type DocumentView =
+  | { kind: "image" }
+  | { kind: "text"; text: string }
+  | { kind: "link" }
+  | { kind: "unshowable"; reason: UnshowableReason };
+
+/** A pending document: its path as written in STATE.md, and how it is shown. */
+export type ShownDocument = { path: string; view: DocumentView };
+
+/** A feature awaiting validation, with its newest entry and that entry's documents read. */
+export type ValidationItem = { feature: Feature; entry: StateEntry; documents: ShownDocument[] };
+
 export type Dashboard = {
   projectRoot: string;
   features: Feature[];
   /** Set when the workflow folder itself could not be listed; `features` is then empty. */
   listingError: string | undefined;
+  toValidate: ValidationItem[];
 };
 
 const MET_STATUS = "met";
+const CLOSING_PHASE = "report";
+const AWAITING_VALIDATION: EntryStatus = "awaiting-validation";
 
 /** The top STATE.md entry, which supersedes all older ones; undefined when there is none. */
 export function newestEntry(feature: Feature): StateEntry | undefined {
   return feature.state.ok ? feature.state.value[0] : undefined;
 }
 
+/** The newest STATE.md entry decides: older entries awaiting validation were superseded. */
+export function isAwaitingValidation(feature: Feature): boolean {
+  return newestEntry(feature)?.status === AWAITING_VALIDATION;
+}
+
 /** Features whose newest STATE.md entry awaits the user's validation. */
-export function pendingValidations(dashboard: Dashboard): Feature[] {
-  return dashboard.features.filter((feature) => newestEntry(feature)?.status === "awaiting-validation");
+export function pendingValidations(features: Feature[]): Feature[] {
+  return features.filter(isAwaitingValidation);
+}
+
+/** Closed: the newest entry is a validated Report, so the increment is done and the workflow paused. */
+export function isClosed(feature: Feature): boolean {
+  const newest = newestEntry(feature);
+  return newest?.status === "validated" && newest.phase.trim().toLowerCase() === CLOSING_PHASE;
+}
+
+export function ongoingFeatures(dashboard: Dashboard): Feature[] {
+  return dashboard.features.filter((feature) => !isClosed(feature));
+}
+
+export function closedFeatures(dashboard: Dashboard): Feature[] {
+  return dashboard.features.filter(isClosed);
+}
+
+export function documentCount(items: ValidationItem[]): number {
+  return items.reduce((total, item) => total + item.documents.length, 0);
 }
 
 export function countMet(requirements: Requirement[]): number {
