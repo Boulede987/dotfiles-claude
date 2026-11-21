@@ -1,0 +1,125 @@
+@startuml workflow-dashboard
+skinparam classAttributeIconSize 0
+hide empty members
+title workflow-dashboard (tools/workflow-dashboard/src) — as built
+
+package "project/.claude/workflow/<slug>/" {
+  class "STATE.md" as StateFile
+  class "NEEDS.md" as NeedsFile
+}
+
+package "tools/workflow-dashboard/src" {
+  class cli <<module>> {
+    + main(argv: string[]): Promise<void>
+    + parseOptions(argv: string[]): ServerOptions
+  }
+  class UsageError
+  class server <<module>> {
+    + startServer(options: ServerOptions): Promise<RunningServer>
+    - routeRequest(context, request, response)
+    - isAllowedHost(host, port): boolean
+    - sendProjectFile(projectRoot, requested, response)
+    - listenWithFallback(server, port): BoundAddress
+  }
+  class ServerContext <<type>> {
+    projectRoot: string
+    port: number
+    eventStreams: Set<ServerResponse>
+  }
+  class RunningServer <<type>> {
+    url: string
+    address: string
+    port: number
+    close(): Promise<void>
+  }
+  class routes <<module>> {
+    + ROUTES: page, fragment, events, files
+    + CHANGED_EVENT
+  }
+  class watcher <<module>> {
+    + watchWorkflow(dir, onChange): Unsubscribe
+  }
+  class WorkflowWatcher {
+    + start(): void
+    + stop(): void
+    - recoverFrom(error): void
+    - pollUntilPresent(): void
+  }
+  class safePath <<module>> {
+    + resolveInside(root, requested): PathResult
+    + resolveExistingInside(root, requested): PathResult
+  }
+  class workflowReader <<module>> {
+    + workflowRoot(projectRoot): string
+    + readWorkflow(projectRoot): Dashboard
+  }
+  class stateParser <<module>> {
+    + parseState(text): ParseResult<StateEntry[]>
+  }
+  class needsParser <<module>> {
+    + parseNeeds(text): ParseResult<Requirement[]>
+  }
+  class renderPage <<module>> {
+    + renderPage(dashboard): string
+    + renderBody(dashboard): string
+  }
+  class styles <<module>> {
+    + STYLES
+  }
+  class clientScript <<module>> {
+    + CLIENT_SCRIPT
+  }
+  class model <<module>> {
+    + ENTRY_STATUSES
+    + newestEntry(feature): StateEntry | undefined
+    + pendingValidations(dashboard): Feature[]
+    + countMet(requirements): number
+  }
+  class Dashboard <<type>> {
+    projectRoot: string
+    features: Feature[]
+    listingError: string | undefined
+  }
+  class Feature <<type>> {
+    slug: string
+    state: ParseResult<StateEntry[]>
+    needs: NeedsResult
+  }
+  class StateEntry <<type>> {
+    timestamp, increment, phase: string
+    status: EntryStatus
+    pendingDocuments: string[]
+    gate: string
+    nextSteps: string[]
+    commits: string[]
+  }
+  class Requirement <<type>> {
+    requirement, indicator, status: string
+  }
+}
+
+cli --> server : starts
+cli ..> UsageError : throws
+server --> ServerContext
+server ..> RunningServer : returns
+server --> watcher : subscribes
+server --> safePath : /files
+server --> workflowReader : on each request
+server --> renderPage
+server --> routes
+watcher --> WorkflowWatcher
+renderPage --> styles
+renderPage --> clientScript
+renderPage --> routes
+clientScript --> routes
+renderPage --> model
+workflowReader --> stateParser
+workflowReader --> needsParser
+workflowReader ..> StateFile : reads
+workflowReader ..> NeedsFile : reads
+workflowReader ..> Dashboard : returns
+Dashboard *-- Feature
+Feature *-- StateEntry
+Feature *-- Requirement
+stateParser --> model : ENTRY_STATUSES
+@enduml
