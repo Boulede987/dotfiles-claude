@@ -1,125 +1,266 @@
 @startuml workflow-dashboard
+
 skinparam classAttributeIconSize 0
-hide empty members
-title workflow-dashboard (tools/workflow-dashboard/src) — as built
+skinparam shadowing false
 
-package "project/.claude/workflow/<slug>/" {
-  class "STATE.md" as StateFile
-  class "NEEDS.md" as NeedsFile
+skinparam class {
+  BackgroundColor<<interface>> #D6EAF8
+  BorderColor<<interface>> #2E86C1
+}
+skinparam class {
+  BackgroundColor<<abstract>> #E8DAEF
+  BorderColor<<abstract>> #8E44AD
+}
+skinparam class {
+  BackgroundColor #D5F5E3
+  BorderColor #27AE60
+}
+skinparam class {
+  BackgroundColor<<type>> #FCF3CF
+  BorderColor<<type>> #B7950B
+}
+skinparam class {
+  BackgroundColor<<module>> #DDEBF7
+  BorderColor<<module>> #4A6FA5
+}
+skinparam class {
+  BackgroundColor<<static>> #a7faa0
+  BorderColor<<static>> #38d610
+}
+skinparam class {
+  BackgroundColor<<enum>> #F5B7B1
+  BorderColor<<enum>> #C0392B
 }
 
-package "tools/workflow-dashboard/src" {
-  class cli <<module>> {
-    + main(argv: string[]): Promise<void>
-    + parseOptions(argv: string[]): ServerOptions
-  }
-  class UsageError
-  class server <<module>> {
-    + startServer(options: ServerOptions): Promise<RunningServer>
-    - routeRequest(context, request, response)
-    - isAllowedHost(host, port): boolean
-    - sendProjectFile(projectRoot, requested, response)
-    - listenWithFallback(server, port): BoundAddress
-  }
-  class ServerContext <<type>> {
-    projectRoot: string
-    port: number
-    eventStreams: Set<ServerResponse>
-  }
-  class RunningServer <<type>> {
-    url: string
-    address: string
-    port: number
-    close(): Promise<void>
-  }
-  class routes <<module>> {
-    + ROUTES: page, fragment, events, files
-    + CHANGED_EVENT
-  }
-  class watcher <<module>> {
-    + watchWorkflow(dir, onChange): Unsubscribe
-  }
-  class WorkflowWatcher {
-    + start(): void
-    + stop(): void
-    - recoverFrom(error): void
-    - pollUntilPresent(): void
-  }
-  class safePath <<module>> {
-    + resolveInside(root, requested): PathResult
-    + resolveExistingInside(root, requested): PathResult
-  }
-  class workflowReader <<module>> {
-    + workflowRoot(projectRoot): string
-    + readWorkflow(projectRoot): Dashboard
-  }
-  class stateParser <<module>> {
-    + parseState(text): ParseResult<StateEntry[]>
-  }
-  class needsParser <<module>> {
-    + parseNeeds(text): ParseResult<Requirement[]>
-  }
-  class renderPage <<module>> {
-    + renderPage(dashboard): string
-    + renderBody(dashboard): string
-  }
-  class styles <<module>> {
-    + STYLES
-  }
-  class clientScript <<module>> {
-    + CLIENT_SCRIPT
-  }
-  class model <<module>> {
-    + ENTRY_STATUSES
-    + newestEntry(feature): StateEntry | undefined
-    + pendingValidations(dashboard): Feature[]
-    + countMet(requirements): number
-  }
-  class Dashboard <<type>> {
-    projectRoot: string
-    features: Feature[]
-    listingError: string | undefined
-  }
-  class Feature <<type>> {
-    slug: string
-    state: ParseResult<StateEntry[]>
-    needs: NeedsResult
-  }
-  class StateEntry <<type>> {
-    timestamp, increment, phase: string
-    status: EntryStatus
-    pendingDocuments: string[]
-    gate: string
-    nextSteps: string[]
-    commits: string[]
-  }
-  class Requirement <<type>> {
-    requirement, indicator, status: string
-  }
+class UsageError {
+}
+class cli <<module>> {
+  - {static} DEFAULT_PORT
+  - {static} MIN_PORT
+  - {static} MAX_PORT
+  - {static} USAGE
+  + {static} main(string[*]) : Promise<void>
+  + {static} parseOptions(string[*]) : ServerOptions
+  - {static} toProjectRoot(string | undefined) : string
+  - {static} toPort(string | undefined) : number
+  - {static} announce(string, string) : void
+  - {static} openBrowser(string) : void
+  - {static} stopOnInterrupt(RunningServer) : void
+}
+class clientScript <<module>> {
+  + {static} CLIENT_SCRIPT
+}
+class StateEntry <<type>> {
+  + timestamp : string
+  + increment : string
+  + phase : string
+  + status : EntryStatus
+  + pendingDocuments : string[*]
+  + gate : string
+  + nextSteps : string[*]
+  + commits : string[*]
+}
+class Requirement <<type>> {
+  + requirement : string
+  + indicator : string
+  + status : string
+}
+class Feature <<type>> {
+  + slug : string
+  + state : ParseResult<StateEntry[]>
+  + needs : NeedsResult
+}
+class Dashboard <<type>> {
+  + projectRoot : string
+  + features : Feature[*]
+  + listingError : string | undefined
+}
+class model <<module>> {
+  + {static} ENTRY_STATUSES
+  - {static} MET_STATUS
+  + {static} newestEntry(Feature) : StateEntry | undefined
+  + {static} pendingValidations(Dashboard) : Feature[*]
+  + {static} countMet(Requirement[*]) : number
+}
+class NumberedLine <<type>> {
+  + lineNumber : number
+  + text : string
+}
+class needsParser <<module>> {
+  - {static} SECTION_TWO
+  - {static} ANY_SECTION
+  - {static} TABLE_ROW
+  - {static} SEPARATOR_ROW
+  - {static} UNESCAPED_PIPE
+  - {static} CELLS_PER_ROW
+  - {static} HEADER_ROWS
+  + {static} parseNeeds(string) : ParseResult<Requirement[]>
+  - {static} takeUntilNextSection(NumberedLine[*]) : NumberedLine[*]
+  - {static} dataRows(NumberedLine[*]) : NumberedLine[*]
+  - {static} toRequirement(NumberedLine) : ParseResult<Requirement>
+  - {static} splitCells(string) : string[*]
+}
+class renderPage <<module>> {
+  - {static} PREVIEWABLE_EXTENSIONS
+  + {static} renderPage(Dashboard) : string
+  + {static} renderBody(Dashboard) : string
+  - {static} renderPendingPanel(Feature[*]) : string
+  - {static} renderPendingCard(Feature) : string
+  - {static} renderFeatureList(Dashboard) : string
+  - {static} renderFeature(Feature) : string
+  - {static} renderCurrentPhase(Feature) : string
+  - {static} renderStateSummary(string, Feature) : string
+  - {static} renderTimeline(StateEntry[*]) : string
+  - {static} groupByIncrement(StateEntry[*]) : [string, StateEntry[]][*]
+  - {static} renderEntry(StateEntry) : string
+  - {static} renderStatusBadge(StateEntry) : string
+  - {static} renderDocuments(string[*], { withPreviews: boolean }) : string
+  - {static} renderNeeds(string, NeedsResult) : string
+  - {static} renderRequirement(Requirement) : string
+  - {static} featureId(string) : string
+  - {static} encodePath(string) : string
+  - {static} isPreviewable(string) : boolean
+  - {static} escapeHtml(string) : string
+}
+class routes <<module>> {
+  + {static} ROUTES
+  + {static} CHANGED_EVENT
+}
+class safePath <<module>> {
+  - {static} WINDOWS_DRIVE_PREFIX
+  + {static} resolveInside(string, string) : PathResult
+  + {static} resolveExistingInside(string, string) : PathResult
+  - {static} isAbsolutePath(string) : boolean
+  - {static} checkContainment(string, string) : PathResult
+  - {static} realPath(string) : string | undefined
+  - {static} decode(string) : string | undefined
+}
+class ServerOptions <<type>> {
+  + projectRoot : string
+  + port : number
+}
+class RunningServer <<type>> {
+  + url : string
+  + address : string
+  + port : number
+  + close : () => Promise<void>
+}
+class ServerContext <<type>> {
+  + projectRoot : string
+  + port : number
+  + eventStreams : ServerResponse[*]
+}
+class BoundAddress <<type>> {
+  + address : string
+  + port : number
+}
+class server <<module>> {
+  - {static} HOST
+  - {static} ALLOWED_HOST_NAMES
+  - {static} MAX_PORT_ATTEMPTS
+  - {static} HTML_TYPE
+  - {static} TEXT_TYPE
+  - {static} CONTENT_TYPES : Record<string, string>
+  - {static} REFUSAL_STATUS : Record<RefusalReason, number>
+  + {static} startServer(ServerOptions) : Promise<RunningServer>
+  - {static} broadcastChange(ServerContext) : void
+  - {static} handleRequest(ServerContext, IncomingMessage, ServerResponse) : void
+  - {static} routeRequest(ServerContext, IncomingMessage, ServerResponse) : void
+  - {static} isAllowedHost(string | undefined, number) : boolean
+  - {static} openEventStream(ServerContext, ServerResponse) : void
+  - {static} sendProjectFile(string, string, ServerResponse) : void
+  - {static} sendHtml(ServerResponse, string) : void
+  - {static} sendText(ServerResponse, number, string) : void
+  - {static} listenWithFallback(Server, number) : Promise<BoundAddress>
+  - {static} tryListen(Server, number) : Promise<ListenResult>
+}
+class Heading <<type>> {
+  + timestamp : string
+  + increment : string
+  + phase : string
+  + overridden : boolean
+}
+class RawEntry <<type>> {
+  + heading : Heading
+  + bodyLines : string[*]
+}
+class stateParser <<module>> {
+  - {static} HEADING
+  - {static} HEADING_FORMAT
+  - {static} FIELD
+  - {static} LIST_ITEM
+  - {static} COMMIT_HASH
+  - {static} COMMIT_PHASE
+  + {static} parseState(string) : ParseResult<StateEntry[]>
+  - {static} splitEntries(string[*]) : ParseResult<RawEntry[]>
+  - {static} parseHeading(string, number) : ParseResult<Heading>
+  - {static} toStateEntry(RawEntry) : StateEntry
+  - {static} collectFields(string[*]) : Map<string, string>
+  - {static} toStatus(string | undefined, boolean) : EntryStatus
+  - {static} toPendingDocuments(string | undefined) : string[*]
+  - {static} toListItems(string | undefined) : string[*]
+  - {static} findCommitHashes(string) : string[*]
+}
+class styles <<module>> {
+  + {static} STYLES
+}
+class WorkflowWatcher {
+  - debounceTimer : NodeJS.Timeout | undefined
+  - pollTimer : NodeJS.Timeout | undefined
+  - watcher : FSWatcher | undefined
+  - stopped
+  - dir : string {readOnly}
+  - onChange : () => void {readOnly}
+  + start() : void
+  + stop() : void
+  - notify() : void
+  - recoverFrom(unknown) : void
+  - pollUntilPresent() : void
+}
+class watcher <<module>> {
+  - {static} DEBOUNCE_MS
+  - {static} MISSING_DIR_POLL_MS
+  + {static} watchWorkflow(string, () => void) : Unsubscribe
+}
+class workflowReader <<module>> {
+  - {static} WORKFLOW_DIR
+  - {static} STATE_FILE
+  - {static} NEEDS_FILE
+  + {static} workflowRoot(string) : string
+  + {static} readWorkflow(string) : Dashboard
+  - {static} findFeatureSlugs(string) : ParseResult<string[]>
+  - {static} readFeature(string, string) : Feature
+  - {static} readNeeds(string) : NeedsResult
+  - {static} parseFile(string, string, (text: string) => ParseResult<T>) : ParseResult<T>
+  - {static} errorCode(unknown) : string
 }
 
-cli --> server : starts
-cli ..> UsageError : throws
-server --> ServerContext
-server ..> RunningServer : returns
-server --> watcher : subscribes
-server --> safePath : /files
-server --> workflowReader : on each request
-server --> renderPage
-server --> routes
-watcher --> WorkflowWatcher
-renderPage --> styles
-renderPage --> clientScript
-renderPage --> routes
-clientScript --> routes
-renderPage --> model
-workflowReader --> stateParser
-workflowReader --> needsParser
-workflowReader ..> StateFile : reads
-workflowReader ..> NeedsFile : reads
-workflowReader ..> Dashboard : returns
-Dashboard *-- Feature
-Feature *-- StateEntry
-Feature *-- Requirement
-stateParser --> model : ENTRY_STATUSES
+UsageError --|> Error
+cli ..> RunningServer
+cli ..> ServerOptions
+cli ..> UsageError
+Feature *--> StateEntry
+Dashboard *--> "0..*" Feature
+model ..> Dashboard
+model ..> Feature
+model ..> Requirement
+model ..> StateEntry
+needsParser ..> NumberedLine
+needsParser ..> Requirement
+renderPage ..> Dashboard
+renderPage ..> Feature
+renderPage ..> Requirement
+renderPage ..> StateEntry
+server ..> BoundAddress
+server ..> RunningServer
+server ..> ServerContext
+server ..> ServerOptions
+RawEntry *--> Heading
+stateParser ..> Heading
+stateParser ..> RawEntry
+stateParser ..> StateEntry
+watcher ..> WorkflowWatcher
+workflowReader ..> Dashboard
+workflowReader ..> Feature
+
 @enduml
