@@ -77,6 +77,10 @@ past one:
 ```markdown
 ## <date> <time> — <story/increment> — Phase: <phase name>
 
+**Status:** <awaiting-validation | validated | overridden>
+
+**Pending documents:** <comma-separated project-relative paths the user must review, or "none">
+
 **Phase & Gate:** <what this phase required, and whether/how the gate was met>
 
 **What changed:**
@@ -97,6 +101,10 @@ past one:
 
 `CLAUDE.md update suggestions` appears only on `Report` entries — including it every
 phase would be noise.
+
+`Status` is `awaiting-validation` while the entry's gate waits on the user,
+`overridden` on an override entry (§7), `validated` otherwise. The newest entry alone says what is pending; when the user validates,
+append the next entry rather than editing a past one.
 
 ## 5. Resume Logic
 

@@ -125,6 +125,17 @@ visible in history, never silent.
 
 </details>
 
+<details>
+<summary><b>Workflow Dashboard</b> — live view of feature-workflow state, outside Claude</summary>
+
+`tools/workflow-dashboard/` is a standalone, read-only local web page per project:
+each feature's timeline, current phase, next step, and the documents awaiting
+validation. Run `npm link` once in that folder, then `workflow-dashboard` in any
+project. See [its README](tools/workflow-dashboard/README.md) and
+[ADR 0011](docs/adr/0011-workflow-dashboard-standalone-tool.md).
+
+</details>
+
 ---
 
 ## Skills

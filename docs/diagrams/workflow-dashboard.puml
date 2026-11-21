@@ -1,0 +1,339 @@
+@startuml workflow-dashboard
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+skinparam class {
+  BackgroundColor<<interface>> #D6EAF8
+  BorderColor<<interface>> #2E86C1
+}
+skinparam class {
+  BackgroundColor<<abstract>> #E8DAEF
+  BorderColor<<abstract>> #8E44AD
+}
+skinparam class {
+  BackgroundColor #D5F5E3
+  BorderColor #27AE60
+}
+skinparam class {
+  BackgroundColor<<type>> #FCF3CF
+  BorderColor<<type>> #B7950B
+}
+skinparam class {
+  BackgroundColor<<module>> #DDEBF7
+  BorderColor<<module>> #4A6FA5
+}
+skinparam class {
+  BackgroundColor<<static>> #a7faa0
+  BorderColor<<static>> #38d610
+}
+skinparam class {
+  BackgroundColor<<enum>> #F5B7B1
+  BorderColor<<enum>> #C0392B
+}
+
+class UsageError {
+}
+class cli <<module>> {
+  - {static} DEFAULT_PORT
+  - {static} MIN_PORT
+  - {static} MAX_PORT
+  - {static} USAGE
+  + {static} main(string[*]) : Promise<void>
+  + {static} parseOptions(string[*]) : ServerOptions
+  - {static} toProjectRoot(string | undefined) : string
+  - {static} toPort(string | undefined) : number
+  - {static} announce(string, string) : void
+  - {static} openBrowser(string) : void
+  - {static} stopOnInterrupt(RunningServer) : void
+}
+class clientScript <<module>> {
+  + {static} CLIENT_SCRIPT
+}
+class documentReader <<module>> {
+  + {static} MAX_TEXT_BYTES
+  - {static} IMAGE_EXTENSIONS
+  - {static} TEXT_EXTENSIONS
+  - {static} UNSHOWABLE_FOR_REFUSAL : Record<RefusalReason, UnshowableReason>
+  - {static} MISSING_ERROR_CODES
+  + {static} readDocument(string, string) : ShownDocument
+  - {static} viewOf(string, string) : DocumentView
+  - {static} readUpTo(string, Buffer) : number
+  - {static} isMissing(unknown) : boolean
+  - {static} unshowable(UnshowableReason) : DocumentView
+}
+class html <<module>> {
+  + {static} TO_VALIDATE_TAB
+  + {static} CLOSED_TAB
+  - {static} ID_SAFE_CHARACTER
+  - {static} ID_PART_SEPARATOR
+  + {static} escapeHtml(string) : string
+  + {static} encodePath(string) : string
+  + {static} fileUrl(string) : string
+  + {static} tabHref(string) : string
+  + {static} featureId(string) : string
+  + {static} documentId(string, string) : string
+  - {static} encodeIdPart(string) : string
+  - {static} encodeIdCharacter(string) : string
+}
+class StateEntry <<type>> {
+  + timestamp : string
+  + increment : string
+  + phase : string
+  + status : EntryStatus
+  + pendingDocuments : string[*]
+  + gate : string
+  + nextSteps : string[*]
+  + commits : string[*]
+}
+class Requirement <<type>> {
+  + requirement : string
+  + indicator : string
+  + status : string
+}
+class Feature <<type>> {
+  + slug : string
+  + state : ParseResult<StateEntry[]>
+  + needs : NeedsResult
+}
+class ShownDocument <<type>> {
+  + path : string
+  + view : DocumentView
+}
+class ValidationItem <<type>> {
+  + feature : Feature
+  + entry : StateEntry
+  + documents : ShownDocument[*]
+}
+class Dashboard <<type>> {
+  + projectRoot : string
+  + features : Feature[*]
+  + listingError : string | undefined
+  + toValidate : ValidationItem[*]
+}
+class model <<module>> {
+  + {static} ENTRY_STATUSES
+  - {static} MET_STATUS
+  - {static} CLOSING_PHASE
+  - {static} AWAITING_VALIDATION : EntryStatus
+  + {static} newestEntry(Feature) : StateEntry | undefined
+  + {static} isAwaitingValidation(Feature) : boolean
+  + {static} pendingValidations(Feature[*]) : Feature[*]
+  + {static} isClosed(Feature) : boolean
+  + {static} ongoingFeatures(Dashboard) : Feature[*]
+  + {static} closedFeatures(Dashboard) : Feature[*]
+  + {static} documentCount(ValidationItem[*]) : number
+  + {static} countMet(Requirement[*]) : number
+}
+class NumberedLine <<type>> {
+  + lineNumber : number
+  + text : string
+}
+class needsParser <<module>> {
+  - {static} SECTION_TWO
+  - {static} ANY_SECTION
+  - {static} TABLE_ROW
+  - {static} SEPARATOR_ROW
+  - {static} UNESCAPED_PIPE
+  - {static} CELLS_PER_ROW
+  - {static} HEADER_ROWS
+  + {static} parseNeeds(string) : ParseResult<Requirement[]>
+  - {static} takeUntilNextSection(NumberedLine[*]) : NumberedLine[*]
+  - {static} dataRows(NumberedLine[*]) : NumberedLine[*]
+  - {static} toRequirement(NumberedLine) : ParseResult<Requirement>
+  - {static} splitCells(string) : string[*]
+}
+class renderFeature <<module>> {
+  + {static} renderFeature(Feature) : string
+  + {static} renderStatusBadge(StateEntry) : string
+  + {static} renderPhase(StateEntry) : string
+  + {static} renderGate(StateEntry) : string
+  + {static} renderDocumentLinks(string[*]) : string
+  - {static} renderCurrentPhase(Feature) : string
+  - {static} renderStateSummary(string, Feature) : string
+  - {static} renderTimeline(StateEntry[*]) : string
+  - {static} groupByIncrement(StateEntry[*]) : [string, StateEntry[]][*]
+  - {static} renderEntry(StateEntry) : string
+  - {static} renderNeeds(string, NeedsResult) : string
+  - {static} renderRequirement(Requirement) : string
+}
+class Tab <<type>> {
+  + name : string
+  + label : string
+  + awaitingValidation : boolean
+  + content : string
+}
+class renderPage <<module>> {
+  - {static} DEFAULT_TAB
+  + {static} renderPage(Dashboard) : string
+  + {static} renderBody(Dashboard) : string
+  - {static} buildTabs(Dashboard) : Tab[*]
+  - {static} featureTab(Feature) : Tab
+  - {static} activeClass(Tab) : string
+  - {static} renderListingNotice(Dashboard) : string
+  - {static} renderTabLink(Tab) : string
+  - {static} renderTabPanel(Tab) : string
+  - {static} renderClosedTab(Feature[*]) : string
+}
+class renderValidation <<module>> {
+  + {static} renderValidationTab(ValidationItem[*]) : string
+  - {static} renderValidationItem(ValidationItem) : string
+  - {static} renderShownDocument(string, ShownDocument) : string
+  - {static} renderView(string, ShowableView) : string
+}
+class routes <<module>> {
+  + {static} ROUTES
+  + {static} CHANGED_EVENT
+}
+class safePath <<module>> {
+  - {static} WINDOWS_DRIVE_PREFIX
+  + {static} resolveInside(string, string) : PathResult
+  + {static} resolveExistingInside(string, string) : PathResult
+  + {static} resolveExistingPath(string, string) : PathResult
+  - {static} resolvePlainInside(string, string) : PathResult
+  - {static} isAbsolutePath(string) : boolean
+  - {static} checkContainment(string, string) : PathResult
+  - {static} realPath(string) : string | undefined
+  - {static} decode(string) : string | undefined
+}
+class ServerOptions <<type>> {
+  + projectRoot : string
+  + port : number
+}
+class RunningServer <<type>> {
+  + url : string
+  + address : string
+  + port : number
+  + close : () => Promise<void>
+}
+class ServerContext <<type>> {
+  + projectRoot : string
+  + port : number
+  + eventStreams : ServerResponse[*]
+}
+class BoundAddress <<type>> {
+  + address : string
+  + port : number
+}
+class server <<module>> {
+  - {static} HOST
+  - {static} ALLOWED_HOST_NAMES
+  - {static} MAX_PORT_ATTEMPTS
+  - {static} HTML_TYPE
+  - {static} TEXT_TYPE
+  - {static} CONTENT_TYPES : Record<string, string>
+  - {static} REFUSAL_STATUS : Record<RefusalReason, number>
+  + {static} startServer(ServerOptions) : Promise<RunningServer>
+  - {static} broadcastChange(ServerContext) : void
+  - {static} handleRequest(ServerContext, IncomingMessage, ServerResponse) : void
+  - {static} routeRequest(ServerContext, IncomingMessage, ServerResponse) : void
+  - {static} isAllowedHost(string | undefined, number) : boolean
+  - {static} openEventStream(ServerContext, ServerResponse) : void
+  - {static} sendProjectFile(string, string, ServerResponse) : void
+  - {static} sendHtml(ServerResponse, string) : void
+  - {static} sendText(ServerResponse, number, string) : void
+  - {static} listenWithFallback(Server, number) : Promise<BoundAddress>
+  - {static} tryListen(Server, number) : Promise<ListenResult>
+}
+class Heading <<type>> {
+  + timestamp : string
+  + increment : string
+  + phase : string
+  + overridden : boolean
+}
+class RawEntry <<type>> {
+  + heading : Heading
+  + bodyLines : string[*]
+}
+class stateParser <<module>> {
+  - {static} HEADING
+  - {static} HEADING_FORMAT
+  - {static} FIELD
+  - {static} LIST_ITEM
+  - {static} COMMIT_HASH
+  - {static} COMMIT_PHASE
+  + {static} parseState(string) : ParseResult<StateEntry[]>
+  - {static} splitEntries(string[*]) : ParseResult<RawEntry[]>
+  - {static} parseHeading(string, number) : ParseResult<Heading>
+  - {static} toStateEntry(RawEntry) : StateEntry
+  - {static} collectFields(string[*]) : Map<string, string>
+  - {static} toStatus(string | undefined, boolean) : EntryStatus
+  - {static} toPendingDocuments(string | undefined) : string[*]
+  - {static} toListItems(string | undefined) : string[*]
+  - {static} findCommitHashes(string) : string[*]
+}
+class styles <<module>> {
+  + {static} STYLES
+}
+class WorkflowWatcher {
+  - debounceTimer : NodeJS.Timeout | undefined
+  - pollTimer : NodeJS.Timeout | undefined
+  - watcher : FSWatcher | undefined
+  - stopped
+  - dir : string {readOnly}
+  - onChange : () => void {readOnly}
+  + start() : void
+  + stop() : void
+  - notify() : void
+  - recoverFrom(unknown) : void
+  - pollUntilPresent() : void
+}
+class watcher <<module>> {
+  - {static} DEBOUNCE_MS
+  - {static} MISSING_DIR_POLL_MS
+  + {static} watchWorkflow(string, () => void) : Unsubscribe
+}
+class workflowReader <<module>> {
+  - {static} WORKFLOW_DIR
+  - {static} STATE_FILE
+  - {static} NEEDS_FILE
+  + {static} workflowRoot(string) : string
+  + {static} readWorkflow(string) : Dashboard
+  - {static} readToValidate(string, Feature[*]) : ValidationItem[*]
+  - {static} findFeatureSlugs(string) : ParseResult<string[]>
+  - {static} readFeature(string, string) : Feature
+  - {static} readNeeds(string) : NeedsResult
+  - {static} parseFile(string, string, (text: string) => ParseResult<T>) : ParseResult<T>
+  - {static} errorCode(unknown) : string
+}
+
+UsageError --|> Error
+cli ..> RunningServer
+cli ..> ServerOptions
+cli ..> UsageError
+documentReader ..> ShownDocument
+Feature *--> StateEntry
+ValidationItem *--> Feature
+ValidationItem *--> "0..*" ShownDocument
+ValidationItem *--> StateEntry
+Dashboard *--> "0..*" Feature
+Dashboard *--> "0..*" ValidationItem
+model ..> Dashboard
+model ..> Feature
+model ..> Requirement
+model ..> StateEntry
+model ..> ValidationItem
+needsParser ..> NumberedLine
+needsParser ..> Requirement
+renderFeature ..> Feature
+renderFeature ..> Requirement
+renderFeature ..> StateEntry
+renderPage ..> Dashboard
+renderPage ..> Feature
+renderPage ..> Tab
+renderValidation ..> ShownDocument
+renderValidation ..> ValidationItem
+server ..> BoundAddress
+server ..> RunningServer
+server ..> ServerContext
+server ..> ServerOptions
+RawEntry *--> Heading
+stateParser ..> Heading
+stateParser ..> RawEntry
+stateParser ..> StateEntry
+watcher ..> WorkflowWatcher
+workflowReader ..> Dashboard
+workflowReader ..> Feature
+workflowReader ..> ValidationItem
+
+@enduml
