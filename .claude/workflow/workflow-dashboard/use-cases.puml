@@ -11,14 +11,14 @@ actor "Claude Code session" as claude
 actor "File system\n(.claude/workflow/**)" as fs
 
 rectangle "workflow-dashboard (standalone process, per project)" {
-  usecase "Start dashboard\nfor a project" as UC1 <<new>>
-  usecase "See where each feature stands\n(current phase + next step)" as UC2 <<new>>
-  usecase "Review pending validations\n(newest entry = awaiting-validation)" as UC3 <<new>>
-  usecase "Open / preview a pending document\n(link; inline svg/png)" as UC4 <<new>>
-  usecase "Browse feature timeline\n(increment > phase, gate, status,\noverride, commit hash)" as UC5 <<new>>
-  usecase "Check requirements progress\n(NEEDS.md section 2, collapsed)" as UC6 <<new>>
-  usecase "See parse errors\nin the page" as UC7 <<new>>
-  usecase "Refresh live on file change" as UC8 <<new>>
+  usecase "Start dashboard\nfor a project" as UC1
+  usecase "Switch between feature tabs\n(ongoing features; closed ones\nin a Closed tab; marker dot\nwhen awaiting validation)" as UC2 <<new>>
+  usecase "Read documents to validate\nin the To validate tab\n(newest entry = awaiting-validation)" as UC3 <<new>>
+  usecase "See each document in place\n(images inline, text as plain text,\nreason when unshowable; link kept)" as UC4 <<new>>
+  usecase "Browse feature timeline\n(increment > phase, gate, status,\noverride, commit hash)" as UC5
+  usecase "Check requirements progress\n(NEEDS.md section 2, collapsed)" as UC6
+  usecase "See parse errors\nin the page" as UC7
+  usecase "Refresh live on file change\n(selected tab kept)" as UC8 <<new>>
 }
 
 dev --> UC1
