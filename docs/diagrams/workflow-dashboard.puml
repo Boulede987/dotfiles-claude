@@ -50,6 +50,32 @@ class cli <<module>> {
 class clientScript <<module>> {
   + {static} CLIENT_SCRIPT
 }
+class documentReader <<module>> {
+  + {static} MAX_TEXT_BYTES
+  - {static} IMAGE_EXTENSIONS
+  - {static} TEXT_EXTENSIONS
+  - {static} UNSHOWABLE_FOR_REFUSAL : Record<RefusalReason, UnshowableReason>
+  - {static} MISSING_ERROR_CODES
+  + {static} readDocument(string, string) : ShownDocument
+  - {static} viewOf(string, string) : DocumentView
+  - {static} readUpTo(string, Buffer) : number
+  - {static} isMissing(unknown) : boolean
+  - {static} unshowable(UnshowableReason) : DocumentView
+}
+class html <<module>> {
+  + {static} TO_VALIDATE_TAB
+  + {static} CLOSED_TAB
+  - {static} ID_SAFE_CHARACTER
+  - {static} ID_PART_SEPARATOR
+  + {static} escapeHtml(string) : string
+  + {static} encodePath(string) : string
+  + {static} fileUrl(string) : string
+  + {static} tabHref(string) : string
+  + {static} featureId(string) : string
+  + {static} documentId(string, string) : string
+  - {static} encodeIdPart(string) : string
+  - {static} encodeIdCharacter(string) : string
+}
 class StateEntry <<type>> {
   + timestamp : string
   + increment : string
@@ -70,16 +96,33 @@ class Feature <<type>> {
   + state : ParseResult<StateEntry[]>
   + needs : NeedsResult
 }
+class ShownDocument <<type>> {
+  + path : string
+  + view : DocumentView
+}
+class ValidationItem <<type>> {
+  + feature : Feature
+  + entry : StateEntry
+  + documents : ShownDocument[*]
+}
 class Dashboard <<type>> {
   + projectRoot : string
   + features : Feature[*]
   + listingError : string | undefined
+  + toValidate : ValidationItem[*]
 }
 class model <<module>> {
   + {static} ENTRY_STATUSES
   - {static} MET_STATUS
+  - {static} CLOSING_PHASE
+  - {static} AWAITING_VALIDATION : EntryStatus
   + {static} newestEntry(Feature) : StateEntry | undefined
-  + {static} pendingValidations(Dashboard) : Feature[*]
+  + {static} isAwaitingValidation(Feature) : boolean
+  + {static} pendingValidations(Feature[*]) : Feature[*]
+  + {static} isClosed(Feature) : boolean
+  + {static} ongoingFeatures(Dashboard) : Feature[*]
+  + {static} closedFeatures(Dashboard) : Feature[*]
+  + {static} documentCount(ValidationItem[*]) : number
   + {static} countMet(Requirement[*]) : number
 }
 class NumberedLine <<type>> {
@@ -100,27 +143,43 @@ class needsParser <<module>> {
   - {static} toRequirement(NumberedLine) : ParseResult<Requirement>
   - {static} splitCells(string) : string[*]
 }
-class renderPage <<module>> {
-  - {static} PREVIEWABLE_EXTENSIONS
-  + {static} renderPage(Dashboard) : string
-  + {static} renderBody(Dashboard) : string
-  - {static} renderPendingPanel(Feature[*]) : string
-  - {static} renderPendingCard(Feature) : string
-  - {static} renderFeatureList(Dashboard) : string
-  - {static} renderFeature(Feature) : string
+class renderFeature <<module>> {
+  + {static} renderFeature(Feature) : string
+  + {static} renderStatusBadge(StateEntry) : string
+  + {static} renderPhase(StateEntry) : string
+  + {static} renderGate(StateEntry) : string
+  + {static} renderDocumentLinks(string[*]) : string
   - {static} renderCurrentPhase(Feature) : string
   - {static} renderStateSummary(string, Feature) : string
   - {static} renderTimeline(StateEntry[*]) : string
   - {static} groupByIncrement(StateEntry[*]) : [string, StateEntry[]][*]
   - {static} renderEntry(StateEntry) : string
-  - {static} renderStatusBadge(StateEntry) : string
-  - {static} renderDocuments(string[*], { withPreviews: boolean }) : string
   - {static} renderNeeds(string, NeedsResult) : string
   - {static} renderRequirement(Requirement) : string
-  - {static} featureId(string) : string
-  - {static} encodePath(string) : string
-  - {static} isPreviewable(string) : boolean
-  - {static} escapeHtml(string) : string
+}
+class Tab <<type>> {
+  + name : string
+  + label : string
+  + awaitingValidation : boolean
+  + content : string
+}
+class renderPage <<module>> {
+  - {static} DEFAULT_TAB
+  + {static} renderPage(Dashboard) : string
+  + {static} renderBody(Dashboard) : string
+  - {static} buildTabs(Dashboard) : Tab[*]
+  - {static} featureTab(Feature) : Tab
+  - {static} activeClass(Tab) : string
+  - {static} renderListingNotice(Dashboard) : string
+  - {static} renderTabLink(Tab) : string
+  - {static} renderTabPanel(Tab) : string
+  - {static} renderClosedTab(Feature[*]) : string
+}
+class renderValidation <<module>> {
+  + {static} renderValidationTab(ValidationItem[*]) : string
+  - {static} renderValidationItem(ValidationItem) : string
+  - {static} renderShownDocument(string, ShownDocument) : string
+  - {static} renderView(string, ShowableView) : string
 }
 class routes <<module>> {
   + {static} ROUTES
@@ -130,6 +189,8 @@ class safePath <<module>> {
   - {static} WINDOWS_DRIVE_PREFIX
   + {static} resolveInside(string, string) : PathResult
   + {static} resolveExistingInside(string, string) : PathResult
+  + {static} resolveExistingPath(string, string) : PathResult
+  - {static} resolvePlainInside(string, string) : PathResult
   - {static} isAbsolutePath(string) : boolean
   - {static} checkContainment(string, string) : PathResult
   - {static} realPath(string) : string | undefined
@@ -228,6 +289,7 @@ class workflowReader <<module>> {
   - {static} NEEDS_FILE
   + {static} workflowRoot(string) : string
   + {static} readWorkflow(string) : Dashboard
+  - {static} readToValidate(string, Feature[*]) : ValidationItem[*]
   - {static} findFeatureSlugs(string) : ParseResult<string[]>
   - {static} readFeature(string, string) : Feature
   - {static} readNeeds(string) : NeedsResult
@@ -239,18 +301,28 @@ UsageError --|> Error
 cli ..> RunningServer
 cli ..> ServerOptions
 cli ..> UsageError
+documentReader ..> ShownDocument
 Feature *--> StateEntry
+ValidationItem *--> Feature
+ValidationItem *--> "0..*" ShownDocument
+ValidationItem *--> StateEntry
 Dashboard *--> "0..*" Feature
+Dashboard *--> "0..*" ValidationItem
 model ..> Dashboard
 model ..> Feature
 model ..> Requirement
 model ..> StateEntry
+model ..> ValidationItem
 needsParser ..> NumberedLine
 needsParser ..> Requirement
+renderFeature ..> Feature
+renderFeature ..> Requirement
+renderFeature ..> StateEntry
 renderPage ..> Dashboard
 renderPage ..> Feature
-renderPage ..> Requirement
-renderPage ..> StateEntry
+renderPage ..> Tab
+renderValidation ..> ShownDocument
+renderValidation ..> ValidationItem
 server ..> BoundAddress
 server ..> RunningServer
 server ..> ServerContext
@@ -262,5 +334,6 @@ stateParser ..> StateEntry
 watcher ..> WorkflowWatcher
 workflowReader ..> Dashboard
 workflowReader ..> Feature
+workflowReader ..> ValidationItem
 
 @enduml
